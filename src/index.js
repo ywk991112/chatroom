@@ -2,18 +2,16 @@ import React from 'react';
 import {render} from 'react-dom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
-try { 
-  injectTapeEventPlugin(); 
-}catch (e) {
-  console.log("Inject Tape Event Error");
-}
+import App from './containers/App';
+import './css/index.scss';
 
-const App = () => (
-  <MuiThemeProvider>
-  </MuiThemeProvider>
-);
+try { 
+  injectTapEventPlugin(); 
+}catch (e) {
+  console.log("Inject Tap Event Error");
+}
 
 render(
   <App />,
-  document.getElementById('')
+  document.getElementById('app')
 );
