@@ -5,7 +5,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 var inProduction = (process.env.NODE_ENV === 'production');
 
 module.exports = {
-  entry: './src/main.js',
+  entry: './src/index.js',
 
   output: {
     path: path.join(__dirname, 'dist'),
@@ -34,9 +34,9 @@ module.exports = {
   },
   
   plugins: [
-    new ExtractTextPlugin(), 
+    new ExtractTextPlugin('style.css'), // style.css ?
     new webpack.LoaderOptionsPlugin({
-      minimize: inProduction;
+      minimize: inProduction,
     })
   ],
 };
