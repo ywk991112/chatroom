@@ -24,7 +24,7 @@ export default class ChatAppBar extends React.Component {
         />
         <Drawer
           docked={false}
-          width={500}
+          width={400}
           open={this.state.open}
           onRequestChange={(open) => this.setState({open})}
         >

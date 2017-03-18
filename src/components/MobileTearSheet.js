@@ -1,29 +1,21 @@
-let React = require('react');
+import React from 'react';
 
-
-let MobileTearSheet = React.createClass({
+export default class MobileTearSheet extends React.Component {
 
   render() {
 
     let styles = {
       root: {
         float: 'left',
-        width: '35%',
-        minHeight: '100%',
+        width: '34%',
         borderRight: 'solid 1px #d9d9d9',
       },
 
       container: {
         borderBottom: 'none',
-        overflow: 'hidden'
+        height: 'calc(100vh - 112px)',
+        overflowY: 'scroll'
       },
-
-      bottomTear: {
-        display: 'block',
-        position: 'relative',
-        marginTop: -10,
-        width: 360
-      }
     };
 
     return (
@@ -34,7 +26,5 @@ let MobileTearSheet = React.createClass({
       </div>
     );
   }
+};
 
-});
-
-module.exports = MobileTearSheet;

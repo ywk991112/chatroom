@@ -1,6 +1,7 @@
 import React from 'react';
 import {Tabs, Tab} from 'material-ui/Tabs';
-import ChatList from '../components/ChatList'
+import ChatList from '../components/ChatList';
+import ChatBox from '../components/ChatBox';
 import People from 'material-ui/svg-icons/social/people';
 import Chat from 'material-ui/svg-icons/communication/chat';
 import SwipeableViews from 'react-swipeable-views';
@@ -52,6 +53,7 @@ export default class TabsExampleSwipeable extends React.Component {
           </div>
           <div style={styles.slide}>
             <ChatList />
+            <ChatBox />
           </div>
         </SwipeableViews>
       </div>
