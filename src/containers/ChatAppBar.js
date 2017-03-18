@@ -3,6 +3,9 @@ import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/FlatButton';
+import IconButton from 'material-ui/IconButton';
+import Dehaze from 'material-ui/svg-icons/image/dehaze';
 
 export default class ChatAppBar extends React.Component {
 
@@ -15,21 +18,26 @@ export default class ChatAppBar extends React.Component {
 
   handleClose = () => this.setState({open: false});
 
+  handleLogout = () => console.log("logout")
+
   render() {
     return (
       <div>
         <AppBar
           title="Chatroom"
-          onTouchTap={this.handleToggle}
+          iconElementLeft={<IconButton onTouchTap={this.handleToggle}><Dehaze /></IconButton>}
+          iconElementRight={<FlatButton label="logout" onTouchTap={this.handleLogout} />}
         />
         <Drawer
           docked={false}
-          width={400}
+          width={300}
           open={this.state.open}
           onRequestChange={(open) => this.setState({open})}
         >
-          <MenuItem onTouchTap={this.handleClose}>Menu Item</MenuItem>
-          <MenuItem onTouchTap={this.handleClose}>Menu Item 2</MenuItem>
+          <MenuItem onTouchTap={this.handleClose}>Notifications & Sounds</MenuItem>
+          <MenuItem onTouchTap={this.handleClose}>Report a problem</MenuItem>
+          <MenuItem onTouchTap={this.handleClose}>Help</MenuItem>
+          <MenuItem onTouchTap={this.handleClose}>Privacy & Terms</MenuItem>
         </Drawer>
       </div>
     );
