@@ -1,26 +1,17 @@
 import React from 'react';
+import '../css/MobileTearSheet.scss';
 
 export default class MobileTearSheet extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
   render() {
-
-    let styles = {
-      root: {
-        float: 'left',
-        width: '34%',
-        borderRight: 'solid 1px #d9d9d9',
-      },
-
-      container: {
-        borderBottom: 'none',
-        height: 'calc(100vh - 112px)',
-        overflowY: 'scroll'
-      },
-    };
-
+    const rootClass = (this.props.left)? "float-left" : "root";
+    console.log(rootClass);
     return (
-      <div style={styles.root}>
-        <div style={styles.container}>
+      <div className={rootClass}>
+        <div className="container">
           {this.props.children}
         </div>
       </div>

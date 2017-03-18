@@ -16,31 +16,19 @@ export default class ChatList extends React.Component {
       <ListItem
         primaryText={obj.name}
         leftAvatar={<Avatar src={obj.image} />}
-        secondaryText={
-          <p>
-            {obj.latMes}
-          </p>
-        }
-        rightIcon={<CommunicationChatBubble />}
         key={idx}
       />
     );
   }
 
   render() { 
-    let testobj = {name: 'a34021501', image: 'images/ok-128.jpg', latMes: 'qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq'};
+    let testobj = {name: '整個好掉', image: 'images/ok-128.jpg', latMes: 'qq'};
     let arr = [];
     for(let i = 0; i < 10; i++) {arr.push(testobj);}
-    console.log("chatlist");
+    console.log("contactlist");
     return(
-      <MobileTearSheet left={true}>
+      <MobileTearSheet left={false}>
         <List>
-          <Subheader>Recent chats</Subheader>
-          {this.genChatList(arr)}
-        </List>
-        <Divider />
-        <List>
-          <Subheader>Previous chats</Subheader>
           {this.genChatList(arr)}
         </List>
       </MobileTearSheet>

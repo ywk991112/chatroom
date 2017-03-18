@@ -1,0 +1,15 @@
+.float-left {
+  float: left;
+  width: 34%;
+  border-right: solid 1px #d9d9d9;
+}
+
+.root {
+  width: 100%;
+}
+
+.container {
+  border-bottom: none;
+  height: calc(100vh - 115px);
+  overflow-y: scroll;
+}

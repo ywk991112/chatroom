@@ -1,22 +1,12 @@
 import React from 'react';
 import {Tabs, Tab} from 'material-ui/Tabs';
+import ContactList from '../components/ContactList';
 import ChatList from '../components/ChatList';
 import ChatBox from '../components/ChatBox';
+import '../css/NavBar.scss'
 import People from 'material-ui/svg-icons/social/people';
 import Chat from 'material-ui/svg-icons/communication/chat';
 import SwipeableViews from 'react-swipeable-views';
-
-const styles = {
-  headline: {
-    fontSize: 24,
-    paddingTop: 16,
-    marginBottom: 12,
-    fontWeight: 400,
-  },
-  slide: {
-    height: 'calc(100vh - 112px)',
-  },
-};
 
 export default class TabsExampleSwipeable extends React.Component {
 
@@ -44,14 +34,14 @@ export default class TabsExampleSwipeable extends React.Component {
           <Tab icon={<Chat />} value={1} />
         </Tabs>
         <SwipeableViews
-          style={styles.slide}
+          className="slide"
           index={this.state.slideIndex}
           onChangeIndex={this.handleChange}
         >
-          <div style={styles.slide}>
-            slide n°1
+          <div className="slide">
+            <ContactList />
           </div>
-          <div style={styles.slide}>
+          <div className="slide">
             <ChatList />
             <ChatBox />
           </div>
