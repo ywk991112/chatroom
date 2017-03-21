@@ -8,7 +8,6 @@ export default class MobileTearSheet extends React.Component {
 
   render() {
     const rootClass = (this.props.left)? "float-left" : "root";
-    console.log(rootClass);
     return (
       <div className={rootClass}>
         <div className="container">

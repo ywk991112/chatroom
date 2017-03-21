@@ -25,7 +25,6 @@ export default class ChatList extends React.Component {
     let testobj = {name: '整個好掉', image: 'images/ok-128.jpg', latMes: 'qq'};
     let arr = [];
     for(let i = 0; i < 10; i++) {arr.push(testobj);}
-    console.log("contactlist");
     return(
       <MobileTearSheet left={false}>
         <List>
