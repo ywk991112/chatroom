@@ -6,7 +6,7 @@ var inProduction = (process.env.NODE_ENV === 'production');
 
 module.exports = {
   entry: {
-    app: './src/index.js',
+    app: './src/client/index.js',
   },
 
   output: {
