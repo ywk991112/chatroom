@@ -8,10 +8,75 @@ var express           =     require('express')
   , config            =     require('./configuration/config')
   , mysql             =     require('mysql')
   , app               =     express()
+  , Sequelize         = require("sequelize")
+  //, sequelize         = new Sequelize('test', 'root', 'my1sql') // connect to mysql
   , server            = require('http').createServer(app)
   , io = require('socket.io').listen(server)
   , nicknames = []
   , random_id = 0;
+
+
+var sequelize = new Sequelize('test', 'root', 'my1sql', {
+  host: 'localhost',
+  dialect: 'mysql',
+  port: 3306,
+
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 10000
+  },
+});
+
+
+// build up tables
+var User = sequelize.define('Users', {
+                   username: Sequelize.STRING,
+                   password: Sequelize.STRING,
+                   user_id:  Sequelize.STRING,
+                   login_t:  Sequelize.DATE,
+                   logout_t:  Sequelize.DATE
+                 });
+
+var Chat_history = sequelize.define('Chat_histories', {
+                   fromName: Sequelize.STRING,
+                   toName: Sequelize.STRING,
+                   msg:  Sequelize.STRING,
+                 });
+
+var Friend_list = sequelize.define('Friend_lists', {
+                   fromName: Sequelize.STRING,
+                   toName: Sequelize.STRING,
+                 });
+
+// sequelize.sync({ force: true });
+sequelize.sync({ force: false }).then(function() {
+  return User.create({ username: 'john', password: '1111' });
+}).then(function(user1) {
+  return User.find({ username: 'john' })
+}).then(function(user2) {
+  console.log(user2.get()); // Get returns a JSON representation of the user
+});
+ 
+
+// Insert data
+/*
+User
+  .build({ username: 'client1', password: 'test1', login_t: new Date() })
+  .save()
+  .then(function(anotherTask) {
+    // you can now access the currently saved task with the variable anotherTask... nice!
+  }).catch(function(error) {
+    // Ooops, do some error-handling
+  })
+*/
+
+// Reading data from table
+User.findAndCountAll({})
+  .then(function(result) {
+    console.log(result.count);
+    console.log(result.rows);
+});
 
 //Define MySQL parameter in Config.js file.
 var connection = mysql.createConnection({
@@ -181,6 +246,38 @@ io.sockets.on('connection', function(socket) {
 
   // login
   socket.on('login', function(data){
+    User.findAll({ where: { username: data.name, password: data.password }
+    }).then(function(result) {
+      console.log("Result:");
+      if (result.length == 0){
+        // add new user
+        console.log("There is no such user, adding now!");
+        addUser(data); 
+        return false;
+      }else{
+        return true;
+      }
+    }).then(function(success) {
+      console.log(success); // Get returns a JSON representation of the user
+    });
+
+
+
+    function addUser(data){
+      User
+        .build({ username: data.name, password: data.password, login_t: new Date() })
+        .save()
+        .then(function(anotherTask) {
+          // you can now access the currently saved task with the variable anotherTask... nice!
+        }).catch(function(error) {
+          // Ooops, do some error-handling
+          if(err) throw err;
+        })
+    }
+/*
+
+*/
+
     // test if inside database
     console.log("get");
     console.log(data.name);
