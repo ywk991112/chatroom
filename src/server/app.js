@@ -108,6 +108,11 @@ app.get('/', function(req, res){
   res.sendFile( __dirname  + "/index.html" )
 });
 
+app.get('/dist/app.css', function(req, res){
+  // res.render('index', { user: req.user });
+  res.sendFile( __dirname  + "/index.html" )
+});
+
 app.get('/account', ensureAuthenticated, function(req, res){
   res.render('account', { user: req.user });
 });
@@ -133,7 +138,6 @@ app.use('/public', express.static(__dirname + '/public'));
 //====================================================
  
 io.sockets.on('connection', function(socket) {
-  console.log("Connection!");
   socket.on('new user', function(data){
     console.log(data);
     if (nicknames.indexOf(data) != -1) {
@@ -182,16 +186,7 @@ io.sockets.on('connection', function(socket) {
   // login
   socket.on('login', function(data){
     // test if inside database
-    console.log("get");
-    console.log(data.name);
-    console.log(data.name.toString());
-    connection.query("SELECT * from user_info where user_name= ?", [data.name.toString()],function(err,rows,fields){
-    // console.log("print rows, fields!");
-    // console.log(err);
-    // console.log(rows);
-    // console.log(fields);
-    // console.log("end ... print rows, fields!")
-
+    connection.query("SELECT * from user_info where user_name="+data.name,function(err,rows,fields){
     if(err) throw err;
       if(rows.length===0)
       {
@@ -199,172 +194,45 @@ io.sockets.on('connection', function(socket) {
 
         get_id = generate_id();
 
-        connection.query("INSERT into user_info(user_id,user_name,password) VALUES('"+get_id+"','"+data.name+"','"+data.password + "')");
-        
+        connection.query("INSERT into user_info(user_id,user_name) VALUES('"+profile.id+"','"+profile.displayName+"')");
         // create table of friends
         console.log("Create friend table");
-        connection.query("CREATE TABLE fr_" + get_id + 
+        connection.query("CREATE TABLE fr_" + profile.id + 
         "(" +
-        "ID INT NOT NULL auto_increment, "+
-        "primary key (ID)," + 
         "user_id numeric(21,0)," +
         "add_t DATETIME" +
         ")CHARACTER SET utf8"
         );
-        // connection.query("describe fr_" + get_id);
-
-        // create table of chatting history
-        console.log("Create chatting history table: chat_" + get_id);
-        var tableName = "chat_" + get_id;
-        connection.query("CREATE TABLE chat_" + get_id + 
-        "(" +
-        "ID INT NOT NULL auto_increment, "+
-        "primary key (ID)," + 
-        "to_id numeric(21,0)," +
-        "send TINYINT," + 
-        "add_t DATETIME," +
-        "msg VARCHAR(1000)" +
-        ")CHARACTER SET utf8"
-        );
-
-
-        // send false to client!
-        socket.emit('login_res', {success: false, id: get_id});
 
         // query id
         function generate_id(){
           var id = Math.floor(Math.random() * 1000000000) + 1;
-          var unique;
-          console.log(id);
-          connection.query("SELECT * from user_info where user_id="+id,function(err,rows,fields){
+          var unique = false;
+          connection.query("SELECT * from user_info where id="+data.name,function(err,rows,fields){
             if(err) throw err;
-            if(rows.length===0){
-              unique = true;
-            }
-            else{
-              unique = false;
-            }
+              if(rows.length===0){
+                unique = true;
+              }
+              else{
+                unique = false;
+              }
           });
           if (unique){
             return id;
           }
           else
-            // return generate_id();
-            return id;
+            return generate_id();
         }
-
       }
       else
       {
         console.log("User already exists in database");
-        // console.log(rows[0].password);
-        var get_id = null;
-        if (rows[0].password == data.password){
-          get_id = rows[0].user_id;
-          // update time
-          connection.query("update `user_info` set login_t=now() where user_id=" + get_id);
-          socket.emit('login_res', {success: true, id: get_id});
-          console.log("Login success!");
-        }
-        else{
-          socket.emit('login_res', {success: false, id: get_id});
-          console.log("Login failed (wrong password)!");
-        }
-      }
-      if (get_id !== null){
-        socket.join(get_id);
       }
     });
   });
-
-  // send msg
-  socket.on('send msg', function(data){
-    console.log(data);
-    
-    // add into reveiver DB
-    var to_id = data.to_id;
-    var from_id = data.id;
-    var tableName = "chat_" + to_id;
-    var msg = data.msg;
-    var send = 0;
-    console.log(tableName);
-    connection.query("INSERT into " + tableName + "(to_id, send, add_t, msg) VALUES('"+to_id+"','"+ send +"',"+ "NOW()" + ",'" + msg + "')", function(err, result){
-      if (err){
-        console.log("Receiver ID not exists!");
-      }
-      else{
-        { console.log("Save chatting history in ", tableName); }
-        // console.log(1); 
-        // function(){ console.log(1);};
-      }
-    });
-
-    // add into sender DB
-    var tableName = "chat_" + data.id;
-    send = 1;
-    connection.query("INSERT into " + tableName + "(to_id, send, add_t, msg) VALUES('"+to_id+"','"+ send +"',"+ "NOW()" + ",'" + msg + "')", function(err, result){
-      if (err){
-        console.log("Sender ID not exists!");
-      }
-      else{
-        console.log("Save chatting history in ", tableName);
-        // console.log( connection.query("describe table chat_916120874") );
-      }
-    });
-
-
-    // send by socket.io
-    var fromName = getNamebyID(from_id);
-    io.sockets.in(to_id).emit('new message', { msg: msg, fromName: fromName });
-
-
-
-  });
-
-  // for testing
-  // socket.emit('test', {id: id});
-
-  socket.on('test', function(data){
-    console.log(data);
-    var tableName = "chat_" + data.id;
-    var to_id = data.id;
-    connection.query("INSERT into " + tableName + "(to_id, send, add_t, msg) VALUES('"+to_id+"','"+ 0 +"',"+ "NOW()" + ",'" + "" + "')", function(err, result){
-      console.log(err);
-      console.log(result);
-      if (err){
-        console.log("ID not exists!");
-      }
-      else{
-
-      }
-    });
-  });
-
-  /*
-  console.log( connection.query("describe table chat_916120874") );
-  */
-
-  // test client socket.io
-  name = "eric";
-  password = "server";
-
-  // login
-  // console.log({name: name, password: password});
-  // socket.emit('login', {name: name, password: password});
-
 });
 
-function getNamebyID(id){
-  connection.query("SELECT * from user_info where user_id="+id,function(err,rows,fields){
-    if(err) throw err;
-    if(rows.length===0){
-      return null;
-    }
-    else{
-      return rows[0].user_name;
-    }
-  });
-}
+
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }

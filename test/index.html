@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+<body>
+
+<div class="container">
+  <label><b>Username</b></label>
+  <input id="name" type="text" placeholder="Enter Username" name="uname" required>
+
+  <label><b>Password</b></label>
+  <input id="password" type="password" placeholder="Enter Password" name="psw" required />
+  <button onclick="send()">Login</button>
+</div>
+
+
+<script>
+  var socket = io()
+  var send = function() {
+    var name = document.getElementById('name').value;
+    var password = document.getElementById('password').value;
+    socket.emit('connection', function() {
+      socket.emit('login', {name: name, password: password});
+    });
+  }
+</script>
+
+</body>
+</html>
