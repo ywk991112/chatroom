@@ -1,8 +1,8 @@
 import React from 'react';
 import {Tabs, Tab} from 'material-ui/Tabs';
-import ContactList from '../components/ContactList';
-import ChatList from '../components/ChatList';
-import ChatBox from '../components/ChatBox';
+import ContactList from './ContactList';
+import ChatList from './ChatList';
+import ChatBox from './ChatBox';
 import '../css/NavBar.scss'
 import People from 'material-ui/svg-icons/social/people';
 import Chat from 'material-ui/svg-icons/communication/chat';
