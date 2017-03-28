@@ -5,6 +5,7 @@ const chat = (state = {}, action) => {
       return {
         ...state,
         channel: action.channel
+        slideIndex: 1
       };
     default:
       return state;

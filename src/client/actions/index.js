@@ -40,3 +40,10 @@ export const changeChannel = (username) => { // socket.io
     channel
   }
 }
+
+export const changeSlide = (idx) => {
+  return {
+    type: types.CHANGE_SLIDE,
+    idx
+  }
+}
