@@ -1,9 +1,10 @@
 const chat = (state = {}, action) => {
+  console.log(state.username);
   switch (action.type) {
-    case 'CLICK_CHAT':
+    case 'CHANGE_CHANNEL':
       return {
         ...state,
-        chatId: action.id
+        channel: action.channel
       };
     default:
       return state;

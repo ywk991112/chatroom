@@ -1,14 +1,16 @@
 import React from 'react';
-import {Tabs, Tab} from 'material-ui/Tabs';
-import ContactList from './ContactList';
-import ChatList from './ChatList';
-import ChatBox from './ChatBox';
-import '../css/NavBar.scss'
-import People from 'material-ui/svg-icons/social/people';
-import Chat from 'material-ui/svg-icons/communication/chat';
 import SwipeableViews from 'react-swipeable-views';
 
-export default class TabsExampleSwipeable extends React.Component {
+import OrderChatList from '../containers/OrderChatList';
+import ContactList from '../containers/ContactList';
+import ChatBox from './ChatBox';
+import '../css/NavBar.scss'
+
+import {Tabs, Tab} from 'material-ui/Tabs';
+import People from 'material-ui/svg-icons/social/people';
+import Chat from 'material-ui/svg-icons/communication/chat';
+
+export default class NavBar extends React.Component {
 
   constructor(props) {
     super(props);
@@ -42,7 +44,7 @@ export default class TabsExampleSwipeable extends React.Component {
             <ContactList />
           </div>
           <div className="slide">
-            <ChatList />
+            <OrderChatList />
             <ChatBox />
           </div>
         </SwipeableViews>

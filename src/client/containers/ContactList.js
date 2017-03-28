@@ -1,0 +1,36 @@
+import React from 'react';
+import { connect } from 'react-redux';
+
+import { changeChannel } from '../actions';
+import MobileTearSheet from '../components/MobileTearSheet';
+import Contact from '../components/Contact';
+
+import Avatar from 'material-ui/Avatar';
+import { List } from 'material-ui/List';
+import Subheader from 'material-ui/Subheader';
+import Divider from 'material-ui/Divider';
+import CommunicationChatBubble from 'material-ui/svg-icons/communication/chat-bubble';
+
+let ChatList = ({ friends, onContactClick }) => {
+  <MobileTearSheet left={false}>
+    <List>
+      {friends.map(friend => 
+        <Contact
+          {...friend}
+          onClick={() => onContactClick(friends.username)} // socket.io
+        />
+      )}
+    </List>
+  </MobileTearSheet>
+};
+
+const mapDispatchToProps = {
+  onContactClick: changeChannel
+}
+
+ChatList = connect(
+  null,
+  mapDispatchToProps
+)(ChatList);
+
+export default ChatList

@@ -14,7 +14,7 @@ try {
   console.log("Inject Tap Event Error");
 }
 
-const store = createStore(reducer);
+const store = createStore(reducer, {chat: {username: 'hao123'}});
 
 render(
   <Provider store={store}>

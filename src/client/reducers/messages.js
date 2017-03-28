@@ -1,4 +1,4 @@
-const message = (action) => {
+const message = (state, action) => {
   switch(action.type) {
     case 'SEND_MESSAGE':
       return {
@@ -10,6 +10,8 @@ const message = (action) => {
         text: action.text,
         send: false
       }
+    default:
+      return state;
   }
 }
 
@@ -18,13 +20,15 @@ const messages = (state = [], action) => {
     case 'SEND_MESSAGE':
       return [
         ...state,
-        message(action)
+        message(undefined, action)
       ]
     case 'GET_MESSAGE':
       return [
         ...state,
-        message(action)
+        message(undefined, action)
       ]
+    default:
+      return state;
   }
 }
 

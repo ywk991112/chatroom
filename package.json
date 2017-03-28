@@ -8,7 +8,7 @@
     "dev": "webpack",
     "production": "NODE_ENV='production' webpack",
     "watch": "npm run dev -- --watch",
-    "run": "xdg-open public/index.html"
+    "start": "xdg-open public/index.html"
   },
   "repository": {
     "type": "git",
