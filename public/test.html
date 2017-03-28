@@ -27,13 +27,39 @@
 
   socket.emit('add friend', {
     fromName: name,
+    friendName:   "client5"
+  });
+
+
+
+  socket.emit('add friend', {
+    fromName: name,
+    friendName:   "client3"
+  });
+
+  socket.emit('add friend', {
+    fromName: name,
     friendName:   "client2"
+  });
+
+  socket.emit('add friend', {
+    fromName: name,
+    friendName:   "client1"
   });
 
   socket.emit('delete friend', {
     fromName: name,
     friendName:   "client2"
   });
+
+  socket.emit('delete friend', {
+    fromName: name,
+  });
+
+  socket.emit('get friends', {
+    fromName: name,
+  });
+
 
   socket.on('add friend res', function(data){
     console.log(data);

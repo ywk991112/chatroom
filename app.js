@@ -229,12 +229,14 @@ io.sockets.on('connection', function(socket) {
         addUser(data); 
         return false;
       }else{
+        data.id = result[0].id;
+        console.log(data.id);
         return true;
       }
     }).then(function(success) {
       // console.log(data);
       console.log("Login: ", success); // Get returns a JSON representation of the user
-      emitLoginResult({success: success, username: data.name });
+      emitLoginResult({success: success, username: data.name, id: data.id });
       if (success){
         socket.join(data.name);
       }
@@ -254,7 +256,7 @@ io.sockets.on('connection', function(socket) {
     }
 
     function emitLoginResult(data){
-      socket.emit('login_res', {success: data.success, name: data.username});
+      socket.emit('login_res', data);
     }
   });
 
@@ -319,16 +321,39 @@ io.sockets.on('connection', function(socket) {
       }
 
   });
-
+ 
   socket.on('delete friend', function(data){
     Friend_list
       .destroy({ where: {fromName: data.fromName, toName: data.friendName} 
     }).then(function (result){
       console.log(result);
+      io.sockets.in(data.fromName).emit('delete friend res', { success: result });
     });
   });
 
   socket.on('get friends', function(data){
+    Friend_list.findAll({ where: { fromName: data.fromName }
+    }).then(function(result) {
+      console.log("Result:");
+      console.log(function(){
+
+        result[0].toName
+      });
+
+      if (result.length == 0){
+        // add new user
+        console.log("You have no friend...!");
+        return false;
+      }else{
+        data.id = result[0].id;
+        console.log(data.id);
+        return true;
+      }
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", success); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
   });
 
   // chatting history
@@ -374,13 +399,15 @@ io.sockets.on('connection', function(socket) {
 });
 
 function getNamebyID(id){
-  connection.query("SELECT * from user_info where user_id="+id,function(err,rows,fields){
-    if(err) throw err;
-    if(rows.length===0){
-      return null;
-    }
-    else{
-      return rows[0].user_name;
+  User.findAll({ where: { id: id }
+  }).then(function(result) {
+    if (result.length == 0){
+      // add new user
+      console.log("There is no such user!");
+      return false;
+    }else{
+      console.log(len(result));
+      return result[0].id;
     }
   });
 }

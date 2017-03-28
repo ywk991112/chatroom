@@ -37,6 +37,20 @@
     console.log(data);
   });
 
+  socket.on('add friend req', function(data){
+    console.log(data);
+    console.log(data.fromName, " is asking to be your friend!");
+  });
+
+  socket.on('delete friend res', function(data){
+    console.log(data);
+  });
+
+  socket.on('send message', function(data){
+    console.log(data);
+  });
+
+
 
 
 </script>
