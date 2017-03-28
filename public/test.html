@@ -15,13 +15,31 @@
   socket.on('login_res', function(data){
     console.log(data);
     id = data.id;
+    name = data.name;
     console.log(id);
   });
 
   socket.emit('send msg', {
-    id:    id,
-    to_id: 320799668,
+    fromName: name,
+    toName:   "client2",   
     msg: "hello world!!!"
   });
+
+  socket.emit('add friend', {
+    fromName: name,
+    friendName:   "client2"
+  });
+
+  socket.emit('delete friend', {
+    fromName: name,
+    friendName:   "client2"
+  });
+
+  socket.on('add friend res', function(data){
+    console.log(data);
+  });
+
+
+
 
 </script>
