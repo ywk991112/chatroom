@@ -12,10 +12,10 @@ export const loginFailure = () => {
   }
 }
 
-export const chat = (id) => {
+export const chat = (username) => {
   return {
     type: types.CHAT,
-    id
+    username
   };
 }
 
@@ -30,5 +30,13 @@ export const getMessage = (message) => {
   return {
     type: types.GET_MESSAGE,
     message
+  }
+}
+
+export const changeChannel = (username) => { // socket.io
+  // do some socket.io username => channel
+  return {
+    type: types.CHANGE_CHANNEL,
+    channel
   }
 }
