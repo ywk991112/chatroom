@@ -4,7 +4,7 @@ const chat = (state = {}, action) => {
     case 'CHANGE_CHANNEL':
       return {
         ...state,
-        channel: action.channel
+        channel: action.channel,
         slideIndex: 1
       };
     default:

@@ -5,11 +5,6 @@ const Chat = ({ onclick, username, id, last_msg, last_time }) => {
   <ListItem
     primaryText={ username }
     leftAvatar={<Avatar src={'images/hao123.jpg'} />}
-    key={ id }
-  />
-  <ListItem
-    primaryText={ username }
-    leftAvatar={<Avatar src={'images/hao123.jpg'} />}
     secondaryText={
       <p>
         { last_msg }

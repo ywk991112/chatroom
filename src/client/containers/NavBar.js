@@ -4,7 +4,7 @@ import SwipeableViews from 'react-swipeable-views';
 
 import OrderChatList from './OrderChatList';
 import ContactList from './ContactList';
-import ChatBox from '../components/ChatBox';
+import ChatBox from './ChatBox';
 import changeSlide from '../actions';
 import '../css/NavBar.scss'
 

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import { changeChannel } from '../actions';
-import ChatList from '../componenets/ChatList';
+import ChatList from '../components/ChatList';
 
 const compare = (a, b) => {
   if (a.last_time < b.last_time)
