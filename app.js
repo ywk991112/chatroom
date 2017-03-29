@@ -8,7 +8,7 @@ var express           =     require('express')
   , config            =     require('./configuration/config')
   , mysql             =     require('mysql')
   , app               =     express()
-  , Sequelize         = require("sequelize")
+  , Sequelize         =     require("sequelize")
   //, sequelize         = new Sequelize('test', 'root', 'my1sql') // connect to mysql
   , server            = require('http').createServer(app)
   , io = require('socket.io').listen(server)
@@ -221,6 +221,7 @@ io.sockets.on('connection', function(socket) {
 
   // login
   socket.on('login', function(data){
+    var name;
     User.findAll({ where: { username: data.name, password: data.password }
     }).then(function(result) {
       if (result.length == 0){
@@ -230,13 +231,24 @@ io.sockets.on('connection', function(socket) {
         return false;
       }else{
         data.id = result[0].id;
-        console.log(data.id);
-        return true;
+        // get name by id
+        var promise = new Promise(function(resolve, reject){
+          User.findById(data.id).then(function(result) {
+            name = result.username;
+            console.log(result.username);
+            // return {success: true, username: result.username};
+            resolve(result.username);
+          });
+        });
+        return {success: true, name: promise};
+
       }
-    }).then(function(success) {
+    }).then(function(result2) {
       // console.log(data);
-      console.log("Login: ", success); // Get returns a JSON representation of the user
-      emitLoginResult({success: success, username: data.name, id: data.id });
+      console.log("result: ", result2); // Get returns a JSON representation of the user
+      console.log("Login: ", result2.success); // Get returns a JSON representation of the user
+      console.log( "Name: ", result2.name);
+      emitLoginResult({success: result2.success, username: result2.name, id: data.id });
       if (success){
         socket.join(data.name);
       }
@@ -396,21 +408,74 @@ io.sockets.on('connection', function(socket) {
   // console.log({name: name, password: password});
   // socket.emit('login', {name: name, password: password});
 
+  /*
+  function getNamebyID(id){
+    return new Promise(function(resolve, reject){
+    User.findById(id).then(function(result) {
+      if (result.length == 0){
+        // add new user
+        console.log("There is no such user!");
+        return false;
+      }else{
+        // console.log(result.length);
+        // console.log(result.username);
+        resolve( result.username );
+      }
+    });
+    })
+  }
+  */
+
+  /*
+    function getNamebyID(id, callback){
+      var _name;
+      User.findById(id).then(function(result) {
+        if (result.length == 0){
+          // add new user
+          console.log("There is no such user!");
+          return false;
+        }else{
+          // console.log(result.length);
+          console.log(result.username);
+          // _name = result.username;
+          // name = result.username;
+          console.log(_name);
+          callback(result.username);
+      }
+      return 1;
+      });
+    }
+  */
+    function getNamebyID(id){
+      var _name;
+      User.findById(id).then(function(result) {
+        if (result.length == 0){
+          // add new user
+          console.log("There is no such user!");
+          return false;
+        }else{
+          // console.log(result.length);
+          console.log(result.username);
+          _name = result.username;
+          // name = result.username;
+          console.log(_name);
+          
+        }
+      });
+    }
+
+/*
+
+    var promise = new Promise(function(resolve, reject) {
+      // do a thing, possibly async, then…
+      name = getNamebyID(data.id);
+      resolve(name);
+    });
+*/
+
 });
 
-function getNamebyID(id){
-  User.findAll({ where: { id: id }
-  }).then(function(result) {
-    if (result.length == 0){
-      // add new user
-      console.log("There is no such user!");
-      return false;
-    }else{
-      console.log(len(result));
-      return result[0].id;
-    }
-  });
-}
+
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
