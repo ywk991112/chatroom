@@ -2,12 +2,12 @@ const message = (state, action) => {
   switch(action.type) {
     case 'SEND_MESSAGE':
       return {
-        text: action.text,
+        message: action.message,
         send: true
       }
     case 'GET_MESSAGE':
       return {
-        text: action.text,
+        message: action.message,
         send: false
       }
     default:

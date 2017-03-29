@@ -23,8 +23,8 @@ let NavBar = ({ slideIndex, onSlideClick }) => {
     </Tabs>
     <SwipeableViews
       className="slide"
-      index={this.state.slideIndex}
-      onChangeIndex={this.handleChange}
+      index={ slideIndex }
+      onChangeIndex={onSlideClick}
     >
       <div className="slide">
         <ContactList />

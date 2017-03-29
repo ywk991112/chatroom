@@ -1,17 +1,5 @@
 import * as types from '../constants/ActionTypes';
 
-export const loginSuccess = () => {
-  return {
-    type: types.LOGIN_SUCCESS
-  }
-}
-
-export const loginFailure = () => {
-  return {
-    type: types.LOGIN_FAILURE
-  }
-}
-
 export const chat = (username) => {
   return {
     type: types.CHAT,
@@ -45,5 +33,34 @@ export const changeSlide = (idx) => {
   return {
     type: types.CHANGE_SLIDE,
     idx
+  }
+}
+
+export const login = (username, password) => {
+  return {
+    type: types.LOGIN,
+    username,
+    password
+  }
+}
+
+export const logout = () => {
+  return {
+    type: types.LOGOUT
+  }
+}
+
+export const loginSuccess = (data) => {
+  return {
+    type: types.LOGIN_SUCCESS,
+    user: data.user,
+    friends: data.friends,
+    channel: data.channel
+  }
+}
+
+export const loginFailure = () => {
+  return {
+    type: types.LOGIN_FAILURE
   }
 }
