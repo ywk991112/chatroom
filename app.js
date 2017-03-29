@@ -232,23 +232,12 @@ io.sockets.on('connection', function(socket) {
       }else{
         data.id = result[0].id;
         // get name by id
-        var promise = new Promise(function(resolve, reject){
-          User.findById(data.id).then(function(result) {
-            name = result.username;
-            console.log(result.username);
-            // return {success: true, username: result.username};
-            resolve(result.username);
-          });
-        });
-        return {success: true, name: promise};
-
+        return true;
       }
-    }).then(function(result2) {
+    }).then(function(success) {
       // console.log(data);
-      console.log("result: ", result2); // Get returns a JSON representation of the user
-      console.log("Login: ", result2.success); // Get returns a JSON representation of the user
-      console.log( "Name: ", result2.name);
-      emitLoginResult({success: result2.success, username: result2.name, id: data.id });
+      console.log("Login: ", success); // Get returns a JSON representation of the user
+      emitLoginResult({success: success, username: data.name, id: data.id });
       if (success){
         socket.join(data.name);
       }
@@ -344,14 +333,21 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('get friends', function(data){
+    var list = [];
     Friend_list.findAll({ where: { fromName: data.fromName }
     }).then(function(result) {
       console.log("Result:");
-      console.log(function(){
-
-        result[0].toName
-      });
-
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push(result[i].toName);
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      console.log(result[2].toName);
+      console.log(result.length);
+/*
       if (result.length == 0){
         // add new user
         console.log("You have no friend...!");
@@ -361,15 +357,37 @@ io.sockets.on('connection', function(socket) {
         console.log(data.id);
         return true;
       }
+*/
     }).then(function(success) {
       // console.log(data);
-      console.log("Get: ", success); // Get returns a JSON representation of the user
+      console.log("Get: ", list); // Get returns a JSON representation of the user
       // emitLoginResult({success: success, username: data.name, id: data.id });
     });
+
   });
 
   // chatting history
   socket.on('last chatting', function(data){
+    var list = [];
+    Chat_history.findAll({ where: { fromName: data.fromName }
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({result[i].toName, send: true, msg: result[i].msg});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
   });
 
   socket.on('chatting history', function(data){
