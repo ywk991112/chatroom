@@ -1,52 +1,53 @@
 import React from 'react';
-import {Tabs, Tab} from 'material-ui/Tabs';
-import ContactList from '../components/ContactList';
-import ChatList from '../components/ChatList';
-import ChatBox from '../components/ChatBox';
-import '../css/NavBar.scss'
-import People from 'material-ui/svg-icons/social/people';
-import Chat from 'material-ui/svg-icons/communication/chat';
+import { connect } from 'react-redux';
 import SwipeableViews from 'react-swipeable-views';
 
-export default class TabsExampleSwipeable extends React.Component {
+import OrderChatList from './OrderChatList';
+import ContactList from './ContactList';
+import ChatBox from './ChatBox';
+import { changeSlide } from '../actions';
+import '../css/NavBar.scss'
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      slideIndex: 0,
-    };
-  }
+import {Tabs, Tab} from 'material-ui/Tabs';
+import People from 'material-ui/svg-icons/social/people';
+import Chat from 'material-ui/svg-icons/communication/chat';
 
-  handleChange = (value) => {
-    this.setState({
-      slideIndex: value,
-    });
-  };
-
-  render() {
-    return (
-      <div>
-        <Tabs
-          onChange={this.handleChange}
-          value={this.state.slideIndex}
-        >
-          <Tab icon={<People />} value={0} />
-          <Tab icon={<Chat />} value={1} />
-        </Tabs>
-        <SwipeableViews
-          className="slide"
-          index={this.state.slideIndex}
-          onChangeIndex={this.handleChange}
-        >
-          <div className="slide">
-            <ContactList />
-          </div>
-          <div className="slide">
-            <ChatList />
-            <ChatBox />
-          </div>
-        </SwipeableViews>
+let NavBar = ({ slideIndex, onSlideClick }) => (
+  <div>
+    <Tabs
+      onChange={onSlideClick}
+      value={slideIndex}
+    >
+      <Tab icon={<People />} value={0} />
+      <Tab icon={<Chat />} value={1} />
+    </Tabs>
+    <SwipeableViews
+      className="slide"
+      index={ slideIndex }
+      onChangeIndex={onSlideClick}
+    >
+      <div className="slide">
+        <ContactList />
       </div>
-    );
-  }
+      <div className="slide">
+        <OrderChatList />
+        <ChatBox />
+      </div>
+    </SwipeableViews>
+  </div>
+)
+
+const mapStateToProps = (state) => ({
+  slideIndex: state.chat.slideIndex
+})
+
+const mapDispatchToProps = {
+  onSlideClick: changeSlide
 }
+
+NavBar = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NavBar)
+
+export default NavBar;

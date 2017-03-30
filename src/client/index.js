@@ -1,8 +1,11 @@
 import React from 'react';
-import {render} from 'react-dom';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
 import injectTapEventPlugin from 'react-tap-event-plugin';
+import 'babel-polyfill'
 
-import App from './containers/App';
+import configureStore from './store';
+import App from './components/App';
 import './css/index.scss';
 
 try { 
@@ -12,6 +15,8 @@ try {
 }
 
 render(
-  <App />,
+  <Provider store={configureStore()}>
+    <App />
+  </Provider>, 
   document.getElementById('app')
 );
