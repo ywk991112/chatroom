@@ -17,7 +17,7 @@ class Login extends React.Component {
 
   render() {
     return (
-      <LoginForm handleSubmit={this.submit} />
+      <LoginForm onSubmit={this.submit} />
     );
   }
 }

@@ -1,17 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { login } from '../actions';
+import { login, changeUser, changePassword } from '../actions';
 
 class Login extends React.Component {
 
   constructor(props) {
     super(props);
-    const {login} = this.props;
+    const { login, usr, pwd, submitLogin, changeUsr, changePwd } = this.props;
     console.log('login', login);
   }
 
-  handleSubmit = () => {
-    
+  handleSubmit = (usr, pwd) => {
+   console.log(usr, pwd); 
   }
 
   render() {
@@ -32,19 +32,27 @@ class Login extends React.Component {
             onChange={this.handle} 
             value={this.pwd} 
             required />
-        <button onClick={this.handleSubmit}>Send</button>
+        <button onClick={this.handleSubmit(usr, pwd)}>Send</button>
       </div>
     )
   }
 }
 
 const mapStoreToProps = (state) => ({
-  login: state.login
+  login: state.login,
+  usr: state.username, 
+  pwd: state.password
 })
 
 const mapDispatchToProps = (dispatch) => ({
   submitLogin: (usr, pwd) => {
-    dispatch(login(usr, pwd))
+    dispatch(login(usr, pwd));
+  },
+  changeUsr: (text) => {
+    dispatch(changeUser(text));
+  },
+  changePwd: (text) => {
+    dispatch(changePassword(text));
   } 
 })
 

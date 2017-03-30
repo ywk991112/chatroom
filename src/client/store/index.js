@@ -22,7 +22,9 @@ export default function configureStore(){
     login: {
       login: false, 
       loginSuccess: false, 
-      friends: []
+      friends: [],
+      username: '',
+      password: '',
     },
   }
   const store = createStore(

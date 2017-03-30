@@ -64,3 +64,17 @@ export const loginFailure = () => {
     type: types.LOGIN_FAILURE
   }
 }
+
+export const changeUser = (username) => {
+  return {
+    type: tyeps.CHANGE_USER,
+    username
+  }
+}
+
+export const changePassword = (password) => {
+  return {
+    type: tyeps.CHANGE_PASSWORD,
+    password
+  }
+}
