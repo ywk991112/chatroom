@@ -13,7 +13,7 @@ const Chat = ({ onclick, username, id, last_msg, last_time }) => (
       </p>
     }
     rightIcon={<CommunicationChatBubble />}
-    key={idx}
+    key={id}
   />
 )
 

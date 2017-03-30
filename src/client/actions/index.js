@@ -21,10 +21,17 @@ export const getMessage = (message) => {
   }
 }
 
-export const changeChannel = (username) => { // socket.io
-  // do some socket.io username => channel
+export const requestHistory = (fromName, toName) => { 
   return {
-    type: types.CHANGE_CHANNEL,
+    type: types.REQUEST_HISTORY,
+    fromName,
+    toName
+  }
+}
+
+export const requireHistory = (channel) => { 
+  return {
+    type: types.REQUIRE_HISTORY,
     channel
   }
 }

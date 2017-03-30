@@ -1,6 +1,10 @@
 const chat = (state = {}, action) => {
   switch (action.type) {
-    case 'CHANGE_CHANNEL':
+    case 'REQUEST_HISTORY':
+      return {
+        ...state,
+      };
+    case 'RESPONSE_HISTORY':
       return {
         ...state,
         channel: action.channel,

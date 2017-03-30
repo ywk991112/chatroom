@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { changeChannel } from '../actions';
+import { requestHistory } from '../actions';
 import MobileTearSheet from '../components/MobileTearSheet';
 import Contact from '../components/Contact';
 
@@ -11,13 +11,13 @@ import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import CommunicationChatBubble from 'material-ui/svg-icons/communication/chat-bubble';
 
-let ContactList = ({ friends, onContactClick }) => (
+let ContactList = ({ user, friends, onContactClick }) => (
   <MobileTearSheet left={false}>
     <List>
       {friends.map(friend => 
         <Contact
           {...friend}
-          onClick={() => onContactClick(friends.username)} // socket.io
+          onClick={() => onContactClick(user, friends.username)} // socket.io
         />
       )}
     </List>
@@ -25,11 +25,12 @@ let ContactList = ({ friends, onContactClick }) => (
 );
 
 const mapStateToProps = (state) => ({
-  friends: state.login.friends
+  friends: state.login.friends,
+  user: state.login.user
 })
 
 const mapDispatchToProps = {
-  onContactClick: changeChannel
+  onContactClick: requestHistory
 }
 
 ContactList = connect(

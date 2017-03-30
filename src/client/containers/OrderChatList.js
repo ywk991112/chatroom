@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { changeChannel } from '../actions';
+import { requestHistory } from '../actions';
 import ChatList from '../components/ChatList';
 
 const compare = (a, b) => {
@@ -12,11 +12,12 @@ const compare = (a, b) => {
 }
 
 const mapStateToProps = (state) => ({
-  friends: state.login.friends.sort(compare)
+  friends: state.login.friends.sort(compare),
+  user: state.login.user
 })
 
 const mapDispatchToProps = {
-  onChatClick: changeChannel
+  onChatClick: requestHistory
 }
 
 const OrderChatList = connect(

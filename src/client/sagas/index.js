@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { eventChannel } from 'redux-saga';
 import { fork, take, call, put, cancel, race } from 'redux-saga/effects';
 import {
-  loginSuccess, loginFailure, login, logout, getMessage
+  loginSuccess, loginFailure, login, logout, getMessage, responseHistory
 } from '../actions';
 
 function connect() {
@@ -13,16 +13,6 @@ function connect() {
     });
   });
 }
-
-//function* getLoginStatus(socket) {
-  //socket.on('login.success', (data) => {
-    //console.log(data);
-    //put(loginSuccess(data));
-  //});
-  //socket.on('login.failure', (message) => {
-    //put(loginFailure(message));
-  //});
-//}
 
 function subscribe(socket) {
   return eventChannel(emit => {
@@ -41,6 +31,16 @@ function loginSubscribe(socket) {
     });
     socket.on('login.failure', (message) => {
       emit(loginFailure(data));
+    });
+    return () => {};
+  });
+}
+
+function historySubscribe(socket) {
+  return eventChannel(emit => {
+    socket.on('response history', (channel) => {
+      console.log('history', channel);
+      emit(responseHistory(channel));
     });
     return () => {};
   });
@@ -69,9 +69,26 @@ function* write(socket) {
   }
 }
 
+function* askHistory(socket) {
+  while (true) {
+    let {fromName, toName} = yield take('REQUEST_HISTORY');
+    socket.emit('REQUEST_HISTORY', {fromName, toName});
+  }
+}
+
+function* getHistory(socket) {
+  const channel = yield call(historySubscribe, socket);
+  while(true) {
+    let action = yield take(channel);
+    yield put(action);
+  }
+}
+
 function* handleIO(socket) {
   yield fork(read, socket);
   yield fork(write, socket);
+  yield fork(askHistory, socket);
+  yield fork(getHistory, socket);
 }
 
 function* flow() {
@@ -82,7 +99,6 @@ function* flow() {
     const socket = yield call(connect);
     console.log('connect');
     console.log("username: ", username);
-    //const loginTask = yield fork(getLoginStatus, socket, username, password); 
     socket.emit('login', {username: username, password: password});
     const loginTask = yield fork(getLoginStatus, socket);
     const {data, msg} = yield race({
