@@ -246,7 +246,8 @@ io.sockets.on('connection', function(socket) {
       // console.log(data);
       if (success){
         console.log("Login: ", success); // Get returns a JSON representation of the user
-        socket.emit('login.success', data);
+        var sent = {user: "client1", friends: [{username: "client2", id: 2, last_msg: "hello!", last_time: "2:09"}]};
+        socket.emit('login.success', sent);
       }
       else{
         socket.emit('login.failure', data);

@@ -12,6 +12,7 @@ const login = (state = {}, action) => {
         loginSuccess: false
       }
     case 'LOGIN_SUCCESS':
+      console.log("login success");
       return {
         ...state,
         loginSuccess: true,

@@ -14,8 +14,9 @@ function connect() {
   });
 }
 
-function getLoginStatus(socket) {
+function* getLoginStatus(socket) {
   socket.on('login.success', (data) => {
+    console.log(data);
     put(loginSuccess(data));
   });
   socket.on('login.failure', (message) => {
