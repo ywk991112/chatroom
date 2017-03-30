@@ -7,6 +7,7 @@ import 'babel-polyfill'
 import configureStore from './store';
 import App from './components/App';
 import './css/index.scss';
+import { login } from './actions';
 
 try { 
   injectTapEventPlugin(); 
@@ -20,3 +21,5 @@ render(
   </Provider>, 
   document.getElementById('app')
 );
+
+window.fuck = configureStore().dispatch(login('client1', 'test1'))

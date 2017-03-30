@@ -150,6 +150,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 */
 app.use(express.static('public'));
+app.use(express.static('dist'));
 
 app.get('/', function(req, res){
   // res.render('index', { user: req.user });
@@ -447,7 +448,7 @@ io.sockets.on('connection', function(socket) {
   socket.on('chatting history', function(data){
     var list = [];
     // sent msg
-    Chat_history.findAll({ where: { fromName: data.fromName }
+    Chat_history.findAll({ where:  {fromName: data.fromName, toName: data.toName}
     }).then(function(result) {
       console.log("Result:");
       
@@ -466,9 +467,9 @@ io.sockets.on('connection', function(socket) {
       console.log("Get: ", list); // Get returns a JSON representation of the user
       // emitLoginResult({success: success, username: data.name, id: data.id });
     });
-
+    
     // received msg
-    Chat_history.findAll({ where: { toName: data.fromName }
+    Chat_history.findAll({ where: {fromName: data.toName, toName: data.fromName}
     }).then(function(result) {
       console.log("Result:");
       
@@ -487,7 +488,7 @@ io.sockets.on('connection', function(socket) {
       console.log("Get: ", list); // Get returns a JSON representation of the user
       io.sockets.in(data.fromID).emit('get chatting history', list);
     });
-
+    
   });
   /*
   YourModel.findAll({
