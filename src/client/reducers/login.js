@@ -23,6 +23,16 @@ const login = (state = {}, action) => {
         ...state,
         loginSuccess: false
       }
+    case 'CHANGE_USER':
+        return {
+          ...state,
+          username: action.username
+        }
+    case 'CHANGE_PASSWORD':
+        return {
+          ...state,
+          password: action.password
+        }
     default:
       return state;
   }

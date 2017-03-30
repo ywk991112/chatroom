@@ -67,14 +67,14 @@ export const loginFailure = () => {
 
 export const changeUser = (username) => {
   return {
-    type: tyeps.CHANGE_USER,
+    type: types.CHANGE_USER,
     username
   }
 }
 
 export const changePassword = (password) => {
   return {
-    type: tyeps.CHANGE_PASSWORD,
+    type: types.CHANGE_PASSWORD,
     password
   }
 }
