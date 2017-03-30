@@ -17,7 +17,6 @@ const login = (state = {}, action) => {
         loginSuccess: true,
         user: action.user,
         friends: action.friends,
-        channel: action.channel
       }
     case 'LOGIN_FAILURE':
       return {

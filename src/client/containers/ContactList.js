@@ -11,7 +11,7 @@ import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import CommunicationChatBubble from 'material-ui/svg-icons/communication/chat-bubble';
 
-let ContactList = ({ friends, onContactClick }) => {
+let ContactList = ({ friends, onContactClick }) => (
   <MobileTearSheet left={false}>
     <List>
       {friends.map(friend => 
@@ -22,14 +22,18 @@ let ContactList = ({ friends, onContactClick }) => {
       )}
     </List>
   </MobileTearSheet>
-};
+);
+
+const mapStateToProps = (state) => ({
+  friends: state.login.friends
+})
 
 const mapDispatchToProps = {
   onContactClick: changeChannel
 }
 
 ContactList = connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(ContactList);
 

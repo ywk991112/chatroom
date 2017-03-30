@@ -15,7 +15,7 @@ try {
 }
 
 render(
-  <Provider store={configureStore}>
+  <Provider store={configureStore()}>
     <App />
   </Provider>, 
   document.getElementById('app')

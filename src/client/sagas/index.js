@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { eventChannel } from 'redux-saga';
 import { fork, take, call, put, cancel, race } from 'redux-saga/effects';
 import {
-  loginSuccess, loginFailure, login, logout
+  loginSuccess, loginFailure, login, logout, getMessage
 } from '../actions';
 
 function connect() {

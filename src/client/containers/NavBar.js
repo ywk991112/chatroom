@@ -5,14 +5,14 @@ import SwipeableViews from 'react-swipeable-views';
 import OrderChatList from './OrderChatList';
 import ContactList from './ContactList';
 import ChatBox from './ChatBox';
-import changeSlide from '../actions';
+import { changeSlide } from '../actions';
 import '../css/NavBar.scss'
 
 import {Tabs, Tab} from 'material-ui/Tabs';
 import People from 'material-ui/svg-icons/social/people';
 import Chat from 'material-ui/svg-icons/communication/chat';
 
-let NavBar = ({ slideIndex, onSlideClick }) => {
+let NavBar = ({ slideIndex, onSlideClick }) => (
   <div>
     <Tabs
       onChange={onSlideClick}
@@ -35,10 +35,10 @@ let NavBar = ({ slideIndex, onSlideClick }) => {
       </div>
     </SwipeableViews>
   </div>
-}
+)
 
 const mapStateToProps = (state) => ({
-  slideIndex: state.slideIndex
+  slideIndex: state.chat.slideIndex
 })
 
 const mapDispatchToProps = {
@@ -49,3 +49,5 @@ NavBar = connect(
   mapStateToProps,
   mapDispatchToProps
 )(NavBar)
+
+export default NavBar;

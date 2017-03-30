@@ -9,7 +9,7 @@ import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import CommunicationChatBubble from 'material-ui/svg-icons/communication/chat-bubble';
 
-const ChatList = ({ friends, onChatClick }) => {
+const ChatList = ({ friends, onChatClick }) => (
   <MobileTearSheet left={true}>
     <List>
       <Subheader>Chat List</Subheader>
@@ -21,6 +21,6 @@ const ChatList = ({ friends, onChatClick }) => {
       )}
     </List>
   </MobileTearSheet>
-};
+);
 
 export default ChatList;

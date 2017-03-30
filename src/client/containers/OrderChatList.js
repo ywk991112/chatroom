@@ -12,7 +12,7 @@ const compare = (a, b) => {
 }
 
 const mapStateToProps = (state) => ({
-  friends: friends.sort(compare)
+  friends: state.login.friends.sort(compare)
 })
 
 const mapDispatchToProps = {

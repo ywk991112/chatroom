@@ -7,6 +7,11 @@ const chat = (state = {}, action) => {
         channel: action.channel,
         slideIndex: 1
       };
+    case 'CHANGE_SLIDE':
+      return {
+        ...state,
+        slideIndex: action.idx
+      };
     default:
       return state;
   }
