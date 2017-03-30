@@ -21,7 +21,7 @@
 
   socket.emit('send msg', {
     fromName: name,
-    toName:   "client2",   
+    toName:   "client4",   
     msg: "hello world!!!"
   });
 
@@ -60,6 +60,9 @@
     fromName: name,
   });
 
+  socket.emit('last chatting', {
+    fromName: name,
+  });
 
   socket.on('add friend res', function(data){
     console.log(data);

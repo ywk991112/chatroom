@@ -42,13 +42,17 @@ var User = sequelize.define('Users', {
 
 var Chat_history = sequelize.define('Chat_histories', {
                    fromName: Sequelize.STRING,
+                   fromID: Sequelize.STRING,
                    toName: Sequelize.STRING,
+                   toID: Sequelize.STRING,
                    msg:  Sequelize.STRING,
                  });
 
 var Friend_list = sequelize.define('Friend_lists', {
                    fromName: Sequelize.STRING,
+                   fromID: Sequelize.STRING,
                    toName: Sequelize.STRING,
+                   toID: Sequelize.STRING,
                  });
 
  
@@ -287,13 +291,15 @@ io.sockets.on('connection', function(socket) {
 
   // friend
   socket.on('add friend', function(data){
-    User.findAll({ where: { username: data.friendName }
+    User
+    .findAll({ where: { username: data.friendName }
     }).then(function(result) {
       if (result.length == 0){
         // add new user
         console.log("There is no such user!");
         return false;
       }else{
+        data.id = result[0].id;
         addFriend(data);
         return true;
       }
@@ -307,7 +313,7 @@ io.sockets.on('connection', function(socket) {
 
     function addFriend(data){
       Friend_list
-        .findOrCreate({where: {fromName: data.fromName, toName: data.friendName} })
+        .findOrCreate({where: {fromName: data.fromName, toName: data.friendName, } })
         .spread(function(user, created) {
           console.log(user.get({
             plain: true
@@ -369,18 +375,19 @@ io.sockets.on('connection', function(socket) {
   // chatting history
   socket.on('last chatting', function(data){
     var list = [];
+    // sent msg
     Chat_history.findAll({ where: { fromName: data.fromName }
     }).then(function(result) {
       console.log("Result:");
       
       for (var j = 0; j < result.length; j += 1) {
           let i = j;
-          list.push({result[i].toName, send: true, msg: result[i].msg});
+          list.push({ username: result[i].toName, send: true, msg: result[i].msg, time: result[i].createdAt});
           console.log(result[i].toName);
           // setTimeout(function(){ console.log(i); }, i*100);
       }
       
-      console.log(result[2].toName);
+      // console.log(result[2].toName);
       console.log(result.length);
 
     }).then(function(success) {
@@ -388,10 +395,46 @@ io.sockets.on('connection', function(socket) {
       console.log("Get: ", list); // Get returns a JSON representation of the user
       // emitLoginResult({success: success, username: data.name, id: data.id });
     });
+
+    // received msg
+    Chat_history.findAll({ where: { toName: data.fromName }
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].fromName, send: false, msg: result[i].msg, time: result[i].createdAt});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
+
+
   });
 
   socket.on('chatting history', function(data){
   });
+  /*
+  YourModel.findAll({
+  limit: 1,
+  where: {
+    //your where conditions, or without them if you need ANY entry
+  },
+  order: [ [ 'createdAt', 'DESC' ]]
+}).then(function(entries){
+  //only difference is that you get users list limited to 1
+  //entries[0]
+}); 
+
+  */
 
 
 
@@ -426,44 +469,6 @@ io.sockets.on('connection', function(socket) {
   // console.log({name: name, password: password});
   // socket.emit('login', {name: name, password: password});
 
-  /*
-  function getNamebyID(id){
-    return new Promise(function(resolve, reject){
-    User.findById(id).then(function(result) {
-      if (result.length == 0){
-        // add new user
-        console.log("There is no such user!");
-        return false;
-      }else{
-        // console.log(result.length);
-        // console.log(result.username);
-        resolve( result.username );
-      }
-    });
-    })
-  }
-  */
-
-  /*
-    function getNamebyID(id, callback){
-      var _name;
-      User.findById(id).then(function(result) {
-        if (result.length == 0){
-          // add new user
-          console.log("There is no such user!");
-          return false;
-        }else{
-          // console.log(result.length);
-          console.log(result.username);
-          // _name = result.username;
-          // name = result.username;
-          console.log(_name);
-          callback(result.username);
-      }
-      return 1;
-      });
-    }
-  */
     function getNamebyID(id){
       var _name;
       User.findById(id).then(function(result) {
