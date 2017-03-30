@@ -37,6 +37,7 @@ export const changeSlide = (idx) => {
 }
 
 export const login = (username, password) => {
+  console.log('login');
   return {
     type: types.LOGIN,
     username,
