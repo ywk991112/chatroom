@@ -11,7 +11,7 @@ class Login extends React.Component {
   }
 
   handleSubmit = () => {
-    const { submitLogin, usr, pwd } = this.props;
+    const { submitLogin, changeUsr, changePwd, usr, pwd } = this.props;
     submitLogin(usr, pwd);
   }
 
