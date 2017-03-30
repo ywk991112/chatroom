@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Avatar from 'material-ui/Avatar';
 import { ListItem } from 'material-ui/List';
 
-const Chat = ({ onclick, username, id, last_msg, last_time }) => {
+const Chat = ({ onclick, username, id, last_msg, last_time }) => (
   <ListItem
     primaryText={ username }
     leftAvatar={<Avatar src={'images/hao123.jpg'} />}
@@ -14,6 +14,6 @@ const Chat = ({ onclick, username, id, last_msg, last_time }) => {
     rightIcon={<CommunicationChatBubble />}
     key={idx}
   />
-}
+)
 
 export default Chat;
