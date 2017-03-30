@@ -21,7 +21,8 @@
 
   socket.emit('send msg', {
     fromName: name,
-    toName:   "client4",   
+    fromID: id,
+    toName:   "client2",   
     msg: "hello world!!!"
   });
 
@@ -34,17 +35,20 @@
 
   socket.emit('add friend', {
     fromName: name,
+    fromID: id,
     friendName:   "client3"
   });
 
   socket.emit('add friend', {
     fromName: name,
+    fromID: id,
     friendName:   "client2"
   });
 
   socket.emit('add friend', {
     fromName: name,
-    friendName:   "client1"
+    friendName:   "client1",
+    fromID: id
   });
 
   socket.emit('delete friend', {
@@ -61,11 +65,21 @@
   });
 
   socket.emit('last chatting', {
+    fromID: id,
+    fromName: name,
+  });
+
+  socket.emit('chatting history', {
+    fromID: id,
+    fromName: name,
+  });
+
+  socket.on('get chatting history', {
     fromName: name,
   });
 
   socket.on('add friend res', function(data){
-    console.log(data);
+    console.log(data[0]);
   });
 
 

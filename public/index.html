@@ -19,6 +19,7 @@
   var socket = io.connect();
   var id;
   var name;
+  var chat_history = [];
   function send() {
     console.log("Send!");
     name = document.getElementById('name').value;
@@ -48,6 +49,15 @@
 
   socket.on('send message', function(data){
     console.log(data);
+  });
+
+  socket.on('new message', function(data){
+    console.log(data);
+  });
+
+  socket.on('get chatting history', function(data){
+    console.log(data);
+    chat_history = data;
   });
 
 

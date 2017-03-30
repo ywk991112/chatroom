@@ -55,7 +55,11 @@ var Friend_list = sequelize.define('Friend_lists', {
                    toID: Sequelize.STRING,
                  });
 
- 
+/*
+ User.sync({force: true});
+ Chat_history.sync({force: true});
+ Friend_list.sync({force: true});
+*/
 
 //Define MySQL parameter in Config.js file.
 var connection = mysql.createConnection({
@@ -131,7 +135,7 @@ passport.use(new FacebookStrategy({
     });
   }
 ));
-
+ 
 //====================================================
 //====================== http ========================
 //====================================================
@@ -243,7 +247,7 @@ io.sockets.on('connection', function(socket) {
       console.log("Login: ", success); // Get returns a JSON representation of the user
       emitLoginResult({success: success, username: data.name, id: data.id });
       if (success){
-        socket.join(data.name);
+        socket.join(data.id);
       }
     });
 
@@ -267,26 +271,40 @@ io.sockets.on('connection', function(socket) {
 
   // send msg
   socket.on('send msg', function(data){
-    // console.log(data);
-    
-    // add into chatting DB
-    Chat_history
-      .build({ fromName: data.fromName, toName: data.toName, msg: data.msg })
-      .save()
-      .then(function(data) {
-        // send by socket.io
-        // sender
-        io.sockets.in(data.fromName).emit('new message', { msg: data.msg, fromName: data.fromName });
-        // receiver
-        io.sockets.in(data.toName).emit('new message', { msg: data.msg, fromName: data.fromName });
-        console.log("Successfully send msg from ", data.fromName, "to ", data.toName, "!");
-      }).catch(function(error) {
-        // Ooops, do some error-handling
-        if (error){
-          console.log(error);
-          console.log("Something wrong (send msg)")
-        }
-      });
+    // check if msg can be sent?
+    User
+    .findAll({ where: { username: data.toName }
+    }).then(function(result) {
+      if (result.length == 0){
+        // add new user
+        console.log("There is no such user!");
+        return false;
+      }else{
+        data.toID = result[0].id;
+        return true;
+      }
+    }).then(function(success) {
+      if(success){
+        // add into chatting DB
+        Chat_history
+        .build({ fromName: data.fromName, fromID: data.fromID, toName: data.toName, toID: data.toID, msg: data.msg })
+        .save()
+        .then(function(data) {
+          // send by socket.io
+          // sender
+          io.sockets.in(data.fromID).emit('new message', { msg: data.msg, fromName: data.fromName });
+          // receiver
+          io.sockets.in(data.toID).emit('new message', { msg: data.msg, fromName: data.fromName });
+          console.log("Successfully send msg from ", data.fromName, "to ", data.toName, "!");
+        }).catch(function(error) {
+          // Ooops, do some error-handling
+          if (error){
+            console.log(error);
+            console.log("Something wrong (send msg)")
+          }
+        });
+      }
+    });
   });
 
   // friend
@@ -299,7 +317,7 @@ io.sockets.on('connection', function(socket) {
         console.log("There is no such user!");
         return false;
       }else{
-        data.id = result[0].id;
+        data.toID = result[0].id;
         addFriend(data);
         return true;
       }
@@ -313,7 +331,7 @@ io.sockets.on('connection', function(socket) {
 
     function addFriend(data){
       Friend_list
-        .findOrCreate({where: {fromName: data.fromName, toName: data.friendName, } })
+        .findOrCreate({where: {fromName: data.fromName, fromID: data.fromID, toName: data.friendName, toID: data.toID } })
         .spread(function(user, created) {
           console.log(user.get({
             plain: true
@@ -322,7 +340,7 @@ io.sockets.on('connection', function(socket) {
             console.log("Become friends!");
           }
           else{
-            console.log("You are already friends!");
+            console.log("You two are already friends!");
           }
         })
       }
@@ -376,6 +394,59 @@ io.sockets.on('connection', function(socket) {
   socket.on('last chatting', function(data){
     var list = [];
     // sent msg
+    Chat_history.findAll({ 
+      limit: 1,
+      where: { fromName: data.fromName },
+      order: [ [ 'createdAt', 'DESC' ]]
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].toName, send: true, msg: result[i].msg, time: result[i].createdAt});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
+
+    // received msg
+    Chat_history.findAll({ 
+      limit: 1,
+      where: { toName: data.fromName },
+      order: [ [ 'createdAt', 'DESC' ]]
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].fromName, send: false, msg: result[i].msg, time: result[i].createdAt});
+          // console.log(result.length);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      io.sockets.in(data.fromID).emit('get last chatting', list);
+    });
+
+
+  });
+
+  socket.on('chatting history', function(data){
+    var list = [];
+    // sent msg
     Chat_history.findAll({ where: { fromName: data.fromName }
     }).then(function(result) {
       console.log("Result:");
@@ -414,13 +485,9 @@ io.sockets.on('connection', function(socket) {
     }).then(function(success) {
       // console.log(data);
       console.log("Get: ", list); // Get returns a JSON representation of the user
-      // emitLoginResult({success: success, username: data.name, id: data.id });
+      io.sockets.in(data.fromID).emit('get chatting history', list);
     });
 
-
-  });
-
-  socket.on('chatting history', function(data){
   });
   /*
   YourModel.findAll({
