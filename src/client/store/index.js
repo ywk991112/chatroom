@@ -1,9 +1,14 @@
 import { createStore, applyMiddleware } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import reducer from '../reducers';
+import { reducer as formReducer } from 'redux-form';
 import saga from '../sagas';
 
 export default function configureStore(){
+  const reducers = {
+    reducer,
+    form: formReducer
+  }
   const sagaMiddleware = createSagaMiddleware();
   const initialState = {
     chat: {
@@ -17,7 +22,9 @@ export default function configureStore(){
     login: {
       login: false, 
       loginSuccess: false, 
-      friends: []
+      friends: [],
+      username: 'usrname',
+      password: 'pwddd',
     },
   }
   const store = createStore(
