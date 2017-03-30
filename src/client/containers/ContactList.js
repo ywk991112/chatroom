@@ -17,7 +17,7 @@ let ContactList = ({ user, friends, onContactClick }) => (
       {friends.map(friend => 
         <Contact
           {...friend}
-          onClick={() => onContactClick(user, friends.username)} // socket.io
+          onClick={onContactClick(user, friends.username)}
         />
       )}
     </List>
@@ -29,8 +29,10 @@ const mapStateToProps = (state) => ({
   user: state.login.user
 })
 
-const mapDispatchToProps = {
-  onContactClick: requestHistory
+const mapDispatchToProps = (dispatch) => {
+  onContactClick: (fromName, toName) => {
+    dispatch(requestHistory(fromName, toName))
+  }
 }
 
 ContactList = connect(

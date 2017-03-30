@@ -16,8 +16,10 @@ const mapStateToProps = (state) => ({
   user: state.login.user
 })
 
-const mapDispatchToProps = {
-  onChatClick: requestHistory
+const mapDispatchToProps = (dispatch) => {
+  onContactClick: (fromName, toName) => {
+    dispatch(requestHistory(fromName, toName))
+  }
 }
 
 const OrderChatList = connect(

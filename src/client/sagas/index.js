@@ -72,7 +72,7 @@ function* write(socket) {
 function* askHistory(socket) {
   while (true) {
     let {fromName, toName} = yield take('REQUEST_HISTORY');
-    socket.emit('REQUEST_HISTORY', {fromName, toName});
+    socket.emit('request history', {fromName, toName});
   }
 }
 

@@ -16,7 +16,7 @@ const ChatList = ({ user, friends, onChatClick }) => (
       {friends.map(friend => 
         <Chat
           {...friend}
-          onClick={() => onChatClick(user, friend.username)}
+          onClick={onChatClick(user, friend.username)}
         />
       )}
     </List>
