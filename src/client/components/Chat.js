@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import Avatar from 'material-ui/Avatar';
 import { ListItem } from 'material-ui/List';
 
 const Chat = ({ onclick, username, id, last_msg, last_time }) => {
