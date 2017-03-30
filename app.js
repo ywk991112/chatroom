@@ -8,10 +8,58 @@ var express           =     require('express')
   , config            =     require('./configuration/config')
   , mysql             =     require('mysql')
   , app               =     express()
+  , Sequelize         =     require("sequelize")
+  //, sequelize         = new Sequelize('test', 'root', 'my1sql') // connect to mysql
   , server            = require('http').createServer(app)
   , io = require('socket.io').listen(server)
   , nicknames = []
   , random_id = 0;
+
+
+var sequelize = new Sequelize('test', 'root', 'my1sql', {
+  host: 'localhost',
+  dialect: 'mysql',
+  port: 3306,
+  timezone: '+08:00',
+
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 10000
+  },
+
+});
+
+
+// build up tables
+var User = sequelize.define('Users', {
+                   username: Sequelize.STRING,
+                   password: Sequelize.STRING,
+                   user_id:  Sequelize.STRING,
+                   login_t:  Sequelize.DATE,
+                   logout_t:  Sequelize.DATE
+                 });
+
+var Chat_history = sequelize.define('Chat_histories', {
+                   fromName: Sequelize.STRING,
+                   fromID: Sequelize.STRING,
+                   toName: Sequelize.STRING,
+                   toID: Sequelize.STRING,
+                   msg:  Sequelize.STRING,
+                 });
+
+var Friend_list = sequelize.define('Friend_lists', {
+                   fromName: Sequelize.STRING,
+                   fromID: Sequelize.STRING,
+                   toName: Sequelize.STRING,
+                   toID: Sequelize.STRING,
+                 });
+
+/*
+ User.sync({force: true});
+ Chat_history.sync({force: true});
+ Friend_list.sync({force: true});
+*/
 
 //Define MySQL parameter in Config.js file.
 var connection = mysql.createConnection({
@@ -87,7 +135,7 @@ passport.use(new FacebookStrategy({
     });
   }
 ));
-
+ 
 //====================================================
 //====================== http ========================
 //====================================================
@@ -133,6 +181,7 @@ app.use('/public', express.static(__dirname + '/public'));
 //====================================================
  
 io.sockets.on('connection', function(socket) {
+  console.log("Connection!");
   socket.on('new user', function(data){
     console.log(data);
     if (nicknames.indexOf(data) != -1) {
@@ -180,51 +229,340 @@ io.sockets.on('connection', function(socket) {
 
   // login
   socket.on('login', function(data){
-    // test if inside database
-    connection.query("SELECT * from user_info where user_name="+data.name,function(err,rows,fields){
-    if(err) throw err;
-      if(rows.length===0)
-      {
-        console.log("There is no such user, adding now");
-
-        get_id = generate_id();
-
-        connection.query("INSERT into user_info(user_id,user_name) VALUES('"+profile.id+"','"+profile.displayName+"')");
-        // create table of friends
-        console.log("Create friend table");
-        connection.query("CREATE TABLE fr_" + profile.id + 
-        "(" +
-        "user_id numeric(21,0)," +
-        "add_t DATETIME" +
-        ")CHARACTER SET utf8"
-        );
-
-        // query id
-        function generate_id(){
-          var id = Math.floor(Math.random() * 1000000000) + 1;
-          var unique = false;
-          connection.query("SELECT * from user_info where id="+data.name,function(err,rows,fields){
-            if(err) throw err;
-              if(rows.length===0){
-                unique = true;
-              }
-              else{
-                unique = false;
-              }
-          });
-          if (unique){
-            return id;
-          }
-          else
-            return generate_id();
-        }
+    var name;
+    User.findAll({ where: { username: data.name, password: data.password }
+    }).then(function(result) {
+      if (result.length == 0){
+        // add new user
+        console.log("There is no such user, adding now!");
+        addUser(data); 
+        return false;
+      }else{
+        data.id = result[0].id;
+        // get name by id
+        return true;
       }
-      else
-      {
-        console.log("User already exists in database");
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Login: ", success); // Get returns a JSON representation of the user
+      emitLoginResult({success: success, username: data.name, id: data.id });
+      if (success){
+        socket.join(data.id);
+      }
+    });
+
+    // utility function
+    function addUser(data){
+      User
+        .build({ username: data.name, password: data.password, login_t: new Date() })
+        .save()
+        .then(function(anotherTask) {
+          // you can now access the currently saved task with the variable anotherTask... nice!
+        }).catch(function(error) {
+          // Ooops, do some error-handling
+          if(err) throw err;
+        })
+    }
+
+    function emitLoginResult(data){
+      socket.emit('login_res', data);
+    }
+  });
+
+  // send msg
+  socket.on('send msg', function(data){
+    // check if msg can be sent?
+    User
+    .findAll({ where: { username: data.toName }
+    }).then(function(result) {
+      if (result.length == 0){
+        // add new user
+        console.log("There is no such user!");
+        return false;
+      }else{
+        data.toID = result[0].id;
+        return true;
+      }
+    }).then(function(success) {
+      if(success){
+        // add into chatting DB
+        Chat_history
+        .build({ fromName: data.fromName, fromID: data.fromID, toName: data.toName, toID: data.toID, msg: data.msg })
+        .save()
+        .then(function(data) {
+          // send by socket.io
+          // sender
+          io.sockets.in(data.fromID).emit('new message', { msg: data.msg, fromName: data.fromName });
+          // receiver
+          io.sockets.in(data.toID).emit('new message', { msg: data.msg, fromName: data.fromName });
+          console.log("Successfully send msg from ", data.fromName, "to ", data.toName, "!");
+        }).catch(function(error) {
+          // Ooops, do some error-handling
+          if (error){
+            console.log(error);
+            console.log("Something wrong (send msg)")
+          }
+        });
       }
     });
   });
+
+  // friend
+  socket.on('add friend', function(data){
+    User
+    .findAll({ where: { username: data.friendName }
+    }).then(function(result) {
+      if (result.length == 0){
+        // add new user
+        console.log("There is no such user!");
+        return false;
+      }else{
+        data.toID = result[0].id;
+        addFriend(data);
+        return true;
+      }
+    }).then(function(success) {
+      // from
+      io.sockets.in(data.fromName).emit('add friend res', { success: success });
+      // to 
+      io.sockets.in(data.toName).emit('add friend req', { fromName: data.fromName });
+    });
+
+
+    function addFriend(data){
+      Friend_list
+        .findOrCreate({where: {fromName: data.fromName, fromID: data.fromID, toName: data.friendName, toID: data.toID } })
+        .spread(function(user, created) {
+          console.log(user.get({
+            plain: true
+          }))
+          if (created){
+            console.log("Become friends!");
+          }
+          else{
+            console.log("You two are already friends!");
+          }
+        })
+      }
+
+  });
+ 
+  socket.on('delete friend', function(data){
+    Friend_list
+      .destroy({ where: {fromName: data.fromName, toName: data.friendName} 
+    }).then(function (result){
+      console.log(result);
+      io.sockets.in(data.fromName).emit('delete friend res', { success: result });
+    });
+  });
+
+  socket.on('get friends', function(data){
+    var list = [];
+    Friend_list.findAll({ where: { fromName: data.fromName }
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push(result[i].toName);
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      console.log(result[2].toName);
+      console.log(result.length);
+/*
+      if (result.length == 0){
+        // add new user
+        console.log("You have no friend...!");
+        return false;
+      }else{
+        data.id = result[0].id;
+        console.log(data.id);
+        return true;
+      }
+*/
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
+
+  });
+
+  // chatting history
+  socket.on('last chatting', function(data){
+    var list = [];
+    // sent msg
+    Chat_history.findAll({ 
+      limit: 1,
+      where: { fromName: data.fromName },
+      order: [ [ 'createdAt', 'DESC' ]]
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].toName, send: true, msg: result[i].msg, time: result[i].createdAt});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
+
+    // received msg
+    Chat_history.findAll({ 
+      limit: 1,
+      where: { toName: data.fromName },
+      order: [ [ 'createdAt', 'DESC' ]]
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].fromName, send: false, msg: result[i].msg, time: result[i].createdAt});
+          // console.log(result.length);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      io.sockets.in(data.fromID).emit('get last chatting', list);
+    });
+
+
+  });
+
+  socket.on('chatting history', function(data){
+    var list = [];
+    // sent msg
+    Chat_history.findAll({ where: { fromName: data.fromName }
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].toName, send: true, msg: result[i].msg, time: result[i].createdAt});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
+
+    // received msg
+    Chat_history.findAll({ where: { toName: data.fromName }
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].fromName, send: false, msg: result[i].msg, time: result[i].createdAt});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      io.sockets.in(data.fromID).emit('get chatting history', list);
+    });
+
+  });
+  /*
+  YourModel.findAll({
+  limit: 1,
+  where: {
+    //your where conditions, or without them if you need ANY entry
+  },
+  order: [ [ 'createdAt', 'DESC' ]]
+}).then(function(entries){
+  //only difference is that you get users list limited to 1
+  //entries[0]
+}); 
+
+  */
+
+
+
+  // for testing
+  // socket.emit('test', {id: id});
+
+  socket.on('test', function(data){
+    console.log(data);
+    var tableName = "chat_" + data.id;
+    var to_id = data.id;
+    connection.query("INSERT into " + tableName + "(to_id, send, add_t, msg) VALUES('"+to_id+"','"+ 0 +"',"+ "NOW()" + ",'" + "" + "')", function(err, result){
+      console.log(err);
+      console.log(result);
+      if (err){
+        console.log("ID not exists!");
+      }
+      else{
+
+      }
+    });
+  });
+
+  /*
+  console.log( connection.query("describe table chat_916120874") );
+  */
+
+  // test client socket.io
+  name = "eric";
+  password = "server";
+
+  // login
+  // console.log({name: name, password: password});
+  // socket.emit('login', {name: name, password: password});
+
+    function getNamebyID(id){
+      var _name;
+      User.findById(id).then(function(result) {
+        if (result.length == 0){
+          // add new user
+          console.log("There is no such user!");
+          return false;
+        }else{
+          // console.log(result.length);
+          console.log(result.username);
+          _name = result.username;
+          // name = result.username;
+          console.log(_name);
+          
+        }
+      });
+    }
+
+/*
+
+    var promise = new Promise(function(resolve, reject) {
+      // do a thing, possibly async, then…
+      name = getNamebyID(data.id);
+      resolve(name);
+    });
+*/
+
 });
 
 
