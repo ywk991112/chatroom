@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { ListItem } from 'material-ui/List';
+import Avatar from 'material-ui/Avatar';
 
 const Contact = ({ onclick, username, id }) => {
   <ListItem
