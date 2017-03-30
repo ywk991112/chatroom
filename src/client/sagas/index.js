@@ -14,15 +14,15 @@ function connect() {
   });
 }
 
-function* getLoginStatus(socket) {
-  socket.on('login.success', (data) => {
-    console.log(data);
-    put(loginSuccess(data));
-  });
-  socket.on('login.failure', (message) => {
-    put(loginFailure(message));
-  });
-}
+//function* getLoginStatus(socket) {
+  //socket.on('login.success', (data) => {
+    //console.log(data);
+    //put(loginSuccess(data));
+  //});
+  //socket.on('login.failure', (message) => {
+    //put(loginFailure(message));
+  //});
+//}
 
 function subscribe(socket) {
   return eventChannel(emit => {
@@ -31,6 +31,27 @@ function subscribe(socket) {
     });
     return () => {};
   });
+}
+
+function loginSubscribe(socket) {
+  return eventChannel(emit => {
+    socket.on('login.success', (data) => {
+      console.log(data);
+      emit(loginSuccess(data));
+    });
+    socket.on('login.failure', (message) => {
+      emit(loginFailure(data));
+    });
+    return () => {};
+  });
+}
+
+function* getLoginStatus(socket) {
+  const channel = yield call(loginSubscribe, socket);
+  while(true) {
+    let action = yield take(channel);
+    yield put(action);
+  }
 }
 
 function* read(socket) {
@@ -61,12 +82,14 @@ function* flow() {
     const socket = yield call(connect);
     console.log('connect');
     console.log("username: ", username);
-    const loginTask = yield fork(getLoginStatus, socket, username, password); 
+    //const loginTask = yield fork(getLoginStatus, socket, username, password); 
     socket.emit('login', {username: username, password: password});
+    const loginTask = yield fork(getLoginStatus, socket);
     const {data, msg} = yield race({
       data: take('LOGIN_SUCCESS'),
       msg: take('LOGIN_FAILURE')
     }); 
+    yield cancel(loginTask);
     if(msg) continue;
 
     const task = yield fork(handleIO, socket);
