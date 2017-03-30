@@ -54,10 +54,14 @@ function* handleIO(socket) {
 
 function* flow() {
   while (true) {
+    console.log('start');
     const {username, password} = yield take('LOGIN');
+    console.log('start login');
     const socket = yield call(connect);
+    console.log('connect');
+    console.log("username: ", username);
     const loginTask = yield fork(getLoginStatus, socket, username, password); 
-    socket.emit('login', username, password);
+    socket.emit('login', {username: username, password: password});
     const {data, msg} = yield race({
       data: take('LOGIN_SUCCESS'),
       msg: take('LOGIN_FAILURE')

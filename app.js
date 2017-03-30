@@ -150,7 +150,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 */
 app.use(express.static('public'));
-app.use(express.static('dist'));
 
 app.get('/', function(req, res){
   // res.render('index', { user: req.user });
@@ -231,7 +230,7 @@ io.sockets.on('connection', function(socket) {
   // login
   socket.on('login', function(data){
     var name;
-    User.findAll({ where: { username: data.name, password: data.password }
+    User.findAll({ where: { username: data.username, password: data.password }
     }).then(function(result) {
       if (result.length == 0){
         // add new user
@@ -245,8 +244,16 @@ io.sockets.on('connection', function(socket) {
       }
     }).then(function(success) {
       // console.log(data);
-      console.log("Login: ", success); // Get returns a JSON representation of the user
-      emitLoginResult({success: success, username: data.name, id: data.id });
+      if (success){
+        console.log("Login: ", success); // Get returns a JSON representation of the user
+        socket.emit('login.success', data);
+      }
+      else{
+        socket.emit('login.failure', data);
+
+      }
+
+      // emitLoginResult({success: success, username: data.username, id: data.id });
       if (success){
         socket.join(data.id);
       }
@@ -448,7 +455,7 @@ io.sockets.on('connection', function(socket) {
   socket.on('chatting history', function(data){
     var list = [];
     // sent msg
-    Chat_history.findAll({ where:  {fromName: data.fromName, toName: data.toName}
+    Chat_history.findAll({ where: { fromName: data.fromName }
     }).then(function(result) {
       console.log("Result:");
       
@@ -467,9 +474,9 @@ io.sockets.on('connection', function(socket) {
       console.log("Get: ", list); // Get returns a JSON representation of the user
       // emitLoginResult({success: success, username: data.name, id: data.id });
     });
-    
+
     // received msg
-    Chat_history.findAll({ where: {fromName: data.toName, toName: data.fromName}
+    Chat_history.findAll({ where: { toName: data.fromName }
     }).then(function(result) {
       console.log("Result:");
       
@@ -488,7 +495,7 @@ io.sockets.on('connection', function(socket) {
       console.log("Get: ", list); // Get returns a JSON representation of the user
       io.sockets.in(data.fromID).emit('get chatting history', list);
     });
-    
+
   });
   /*
   YourModel.findAll({
