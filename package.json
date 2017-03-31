@@ -4,11 +4,11 @@
   "description": "React nodejs chatroom",
   "main": "index.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack",
     "production": "NODE_ENV='production' webpack",
-    "watch": "npm run dev -- --watch",
-    "start": "xdg-open public/index.html"
+    "watch": "npm run dev -- --watch"
   },
   "repository": {
     "type": "git",
@@ -32,7 +32,6 @@
     "react-dom": "^15.4.2",
     "react-redux": "^5.0.3",
     "redux": "^3.6.0",
-    "redux-form": "^6.6.1",
     "redux-saga": "^0.14.3",
     "sequelize": "^3.30.3",
     "socket.io": "1.7.3"
