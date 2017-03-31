@@ -17,12 +17,12 @@ git clone https://github.com/ywk991112/chatroom
 cd chatroom
 npm install
 ```
-Build up the app
+Build Up the App
 ------
 ```
 npm run build
 ```
-Start server
+Start Server
 ------
 ```
 npm start
