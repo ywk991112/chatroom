@@ -15,9 +15,10 @@ export const sendMessage = (message) => {
 }
 
 export const getMessage = (message) => {
+  // message = {fromName, time, text}
   return {
     type: types.GET_MESSAGE,
-    message
+    ...message
   }
 }
 

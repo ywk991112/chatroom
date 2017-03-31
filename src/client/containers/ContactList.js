@@ -29,11 +29,11 @@ const mapStateToProps = (state) => ({
   user: state.login.user
 })
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch) => ({
   onContactClick: (fromName, toName) => {
     dispatch(requestHistory(fromName, toName))
   }
-}
+})
 
 ContactList = connect(
   mapStateToProps,
