@@ -1,10 +1,13 @@
 const chat = (state = {}, action) => {
+  console.log('chat reducer');
+  console.log('action type: ', action.type);
   switch (action.type) {
     case 'REQUEST_HISTORY':
       return {
         ...state,
       };
     case 'RESPONSE_HISTORY':
+      console.log('hao123');
       return {
         ...state,
         channel: action.channel,
@@ -16,13 +19,13 @@ const chat = (state = {}, action) => {
           ...state,
           channel: {
             ...state.channel,
-            history: [...history, {send: false, time: action.time, text: action.text}]
+            history: [...state.channel.history, {send: false, time: action.time, text: action.text}]
           }
         };
       } else {
         return {
           ...state
-        }
+        };
       }
     case 'CHANGE_SLIDE':
       return {

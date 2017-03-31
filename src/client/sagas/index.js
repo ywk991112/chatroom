@@ -16,7 +16,7 @@ function connect() {
 
 function subscribe(socket) {
   return eventChannel(emit => {
-    socket.on('get messages', ( message ) => {
+    socket.on('get message', ( message ) => {
       emit(getMessage(message));
     });
     return () => {};
@@ -36,16 +36,6 @@ function loginSubscribe(socket) {
   });
 }
 
-function historySubscribe(socket) {
-  return eventChannel(emit => {
-    socket.on('response history', (channel) => {
-      console.log('history', channel);
-      emit(responseHistory(channel));
-    });
-    return () => {};
-  });
-}
-
 function* getLoginStatus(socket) {
   const channel = yield call(loginSubscribe, socket);
   while(true) {
@@ -58,6 +48,7 @@ function* read(socket) {
   const channel = yield call(subscribe, socket);
   while (true) {
     let action = yield take(channel);
+    console.log("get message yoyyoyoyoyoyoy");
     yield put(action);
   }
 }
@@ -65,6 +56,7 @@ function* read(socket) {
 function* write(socket) {
   while (true) {
     let action = yield take('SEND_MESSAGE');
+    console.log('yoyoyo');
     socket.emit('send message', action.message);
   }
 }
@@ -72,15 +64,13 @@ function* write(socket) {
 function* askHistory(socket) {
   while (true) {
     let {fromName, toName} = yield take('REQUEST_HISTORY');
-    socket.emit('request history', {fromName, toName});
-  }
-}
-
-function* getHistory(socket) {
-  const channel = yield call(historySubscribe, socket);
-  while(true) {
-    let action = yield take(channel);
-    yield put(action);
+    let channel = yield new Promise((resolve) => {
+      socket.emit('request history', {fromName, toName}, (channel) => {
+        console.log(channel);
+        resolve(channel);
+      });
+    });
+    yield put(responseHistory(channel));
   }
 }
 
@@ -88,7 +78,6 @@ function* handleIO(socket) {
   yield fork(read, socket);
   yield fork(write, socket);
   yield fork(askHistory, socket);
-  yield fork(getHistory, socket);
 }
 
 function* flow() {

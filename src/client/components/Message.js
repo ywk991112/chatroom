@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 const Message = ({ send, text }) => (
-  <div className={ "message-item " +  send ? "message-from-me" : "message-from-other" }>
+  <div className={ "message-item " +  (send ? "message-from-me" : "message-from-other") }>
     <span>{text}</span>
   </div>
 )

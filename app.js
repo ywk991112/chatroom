@@ -150,11 +150,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 */
 app.use(express.static('public'));
+app.use('/dist', express.static('dist'));
 
-app.get('/', function(req, res){
-  // res.render('index', { user: req.user });
-  res.sendFile( __dirname  + "/index.html" )
-});
+//app.get('/', function(req, res){
+  //// res.render('index', { user: req.user });
+  //res.sendFile( __dirname  + "/index.html" )
+//});
 
 app.get('/account', ensureAuthenticated, function(req, res){
   res.render('account', { user: req.user });
@@ -210,10 +211,10 @@ io.sockets.on('connection', function(socket) {
     });
   }
 
-
-  socket.on('send message', function(data){
-    io.sockets.emit('new message', { msg: data, nick: socket.nickname });
-  });
+  // test comment
+  //socket.on('send message', function(data){
+    //io.sockets.emit('new message', { msg: data, nick: socket.nickname });
+  //});
 
   socket.on('send message2', function(toName, data){
     console.log(toName, "/", data)
@@ -229,6 +230,12 @@ io.sockets.on('connection', function(socket) {
 
   // login
   socket.on('login', function(data){
+    // test
+    var sent = {user: "client1", friends: [{username: "client2", id: 2, last_msg: "hello!", last_time: "2:09"},
+                                           {username: "client3", id: 3, last_msg: "Fuck!", last_time: "3:19"}]};
+    socket.emit('login.success', sent);
+
+    return;
     var name;
     User.findAll({ where: { username: data.username, password: data.password }
     }).then(function(result) {
@@ -572,6 +579,18 @@ io.sockets.on('connection', function(socket) {
     });
 */
 
+
+  // test
+  socket.on('request history', function(names, cb) {
+    console.log(names.toName);
+    var channel = (names.toName == "client2") ? {username: "client2", history: [{send: true, time: '2:30', text:'hao123?'},{send: false, time: '2:31', text:'Fuck?'}]} : {username: "client3", history: [{send: true, time: '2:30', text:'gengengen?'},{send: true, time: '2:31', text:'hao333?'}]};
+    cb(channel);
+  });
+
+  socket.on('send message', function(msg) {
+    var message = {fromName: "client2", time: "3:50", text: "qqq dont fuck me"}
+    socket.emit('get message', message);
+  });
 });
 
 

@@ -30,9 +30,10 @@ export const requestHistory = (fromName, toName) => {
   }
 }
 
-export const requireHistory = (channel) => { 
+export const responseHistory = (channel) => { 
+  console.log('response history action', channel);
   return {
-    type: types.REQUIRE_HISTORY,
+    type: types.RESPONSE_HISTORY,
     channel
   }
 }

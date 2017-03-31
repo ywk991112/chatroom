@@ -17,7 +17,8 @@ let ContactList = ({ user, friends, onContactClick }) => (
       {friends.map(friend => 
         <Contact
           {...friend}
-          onClick={onContactClick(user, friends.username)}
+          onClick={(ev) => 
+              onContactClick(user, friend.username)}
         />
       )}
     </List>

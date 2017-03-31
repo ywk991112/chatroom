@@ -7,7 +7,7 @@ module.exports={
 	"facebook_api_key" 		: 			"1327316484016578",
 	"facebook_api_secret"	:				"6f5e8864f43053968b1cc6de65cd19be",
 	"callback_url"				:				"http://localhost:3000/auth/facebook/callback",
-	"use_database"				:				"true",
+	"use_database"				:				"false",
 	"host"						:				"localhost",
 	"username"					:				"root",
 	"password"					:				"my1sql",

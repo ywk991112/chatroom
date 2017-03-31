@@ -32,7 +32,7 @@ class ChatBox extends React.Component {
           />
         </div>
         <div className="footer">
-          <input className="new-message" type="text" onKeyPress={handleKeyPress}/>
+          <input className="new-message" type="text" onKeyPress={this.handleKeyPress}/>
         </div>
       </div>
     )
