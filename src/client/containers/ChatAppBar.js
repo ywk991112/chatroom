@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
@@ -7,7 +8,7 @@ import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
 import Dehaze from 'material-ui/svg-icons/image/dehaze';
 
-export default class ChatAppBar extends React.Component {
+class ChatAppBar extends React.Component {
 
   constructor(props) {
     super(props);
@@ -21,6 +22,7 @@ export default class ChatAppBar extends React.Component {
   handleLogout = () => console.log("logout")
 
   render() {
+    const { user } = this.props;
     return (
       <div>
         <AppBar
@@ -34,6 +36,7 @@ export default class ChatAppBar extends React.Component {
           open={this.state.open}
           onRequestChange={(open) => this.setState({open})}
         >
+          <MenuItem>{ "User: " + user }</MenuItem>
           <MenuItem onTouchTap={this.handleClose}>Notifications & Sounds</MenuItem>
           <MenuItem onTouchTap={this.handleClose}>Report a problem</MenuItem>
           <MenuItem onTouchTap={this.handleClose}>Help</MenuItem>
@@ -43,3 +46,14 @@ export default class ChatAppBar extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  user: state.login.user
+}) 
+
+ChatAppBar = connect(
+  mapStateToProps 
+)(ChatAppBar)
+
+
+export default ChatAppBar;
