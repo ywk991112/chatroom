@@ -27,6 +27,15 @@ const chat = (state = {}, action) => {
           ...state
         };
       }
+    case 'SEND_MESSAGE':
+      console.log(action.message);
+      return {
+        ...state,
+        channel : {
+          ...state.channel,
+          history: [...state.channel.history, {send: true, text:action.message.text}]
+        }
+      }
     case 'CHANGE_SLIDE':
       return {
         ...state,
