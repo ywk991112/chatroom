@@ -231,11 +231,13 @@ io.sockets.on('connection', function(socket) {
   // login
   socket.on('login', function(data){
     // test
-    var sent = {user: "client1", friends: [{username: "client2", id: 2, last_msg: "hello!", last_time: "2:09"},
-                                           {username: "client3", id: 3, last_msg: "Fuck!", last_time: "3:19"}]};
+    /*
+    var sent = {user: "client1", friends: [{username: "client2"},
+                                           {username: "client3"}]};
     socket.emit('login.success', sent);
-
     return;
+    */
+    console.log(data);
     var name;
     User.findAll({ where: { username: data.username, password: data.password }
     }).then(function(result) {
@@ -252,18 +254,94 @@ io.sockets.on('connection', function(socket) {
     }).then(function(success) {
       // console.log(data);
       if (success){
+        // ask for friends!
         console.log("Login: ", success); // Get returns a JSON representation of the user
-        var sent = {user: "client1", friends: [{username: "client2", id: 2, last_msg: "hello!", last_time: "2:09"}]};
-        socket.emit('login.success', sent);
+        var list = [];
+        var arr  = [];
+        var chatlist_one = [];
+        Friend_list.findAll({ where: { fromName: data.username }
+        }).then(function(result) {
+          console.log("Result:");
+          for (var j = 0; j < result.length; j += 1) {
+              let i = j;
+              if (arr.indexOf(result[i].toName) === -1){
+                arr.push(result[i].toName);
+                list.push({username: result[i].toName});
+                console.log(result[i].toName);
+              }
+          }
+          return true;
+        }).then(function(success) {
+          Friend_list.findAll({ where: { toName: data.username }
+          }).then(function(result) {
+            console.log("Result:");
+            for (var j = 0; j < result.length; j += 1) {
+                let i = j;
+                if (arr.indexOf(result[i].fromName) === -1){
+                  arr.push(result[i].fromName);
+                  list.push({username: result[i].fromName});
+                  console.log(result[i].fromName);
+                }
+            }
+            return true;
+          }).then(function(success) {
+            /*
+            // get chatting msg with friend list
+            console.log("list: ", list);
+            for (var j = 0; j < list.length; j += 1) {
+              let i = j;
+              var chatlist = [];
+              // sent msg
+              Chat_history.findAll({ 
+                limit: 1,
+                where: { fromName: list[i].username },
+                order: [ [ 'createdAt', 'DESC' ]]
+              }).then(function(result) {
+                console.log("Result:");
+                for (var k = 0; k < result.length; k += 1) {
+                  let i = k;
+                  chatlist.push({ username: result[i].toName, last_msg: result[i].msg, last_time: result[i].createdAt});
+                  console.log(i, ":", chatlist);
+                }
+
+              }).then(function(success) {
+                // received msg
+                Chat_history.findAll({ 
+                  limit: 1,
+                  where: { toName: list[i].username },
+                  order: [ [ 'createdAt', 'DESC' ]]
+                }).then(function(result) {
+                  console.log("Result:");
+                  for (var k = 0; k < result.length; k += 1) {
+                      let i = k;
+                      chatlist.push({ username: result[i].fromName, last_msg: result[i].msg, last_time: result[i].createdAt});
+                  }
+                  console.log(result.length);
+                }).then(function(success) {
+                  // console.log(data);
+                  console.log("Get: ", list); // Get returns a JSON representation of the user
+                }).then(function(checklist){
+                  console.log("chatlist: ", chatlist);
+                });
+              }).then(function(last){
+                // console.log("chatlist: ", chatlist);
+              });
+            }
+            */
+            // end
+            console.log("Get: ", {user: data.username, friends: list}); // Get returns a JSON representation of the user
+            socket.emit('login.success', {user: data.username, friends: list});
+          });
+        });
+
+        var sent = {user: data.username, friends: [{username: "client2", id: 2, last_msg: "hello!", last_time: "2:09"}, 
+                                                  {username: "client3", id: 2, last_msg: "hello!", last_time: "3:09"}]};
+        // socket.emit('login.success', sent);
+        socket.join(data.username);
       }
       else{
         socket.emit('login.failure', data);
 
-      }
-
-      // emitLoginResult({success: success, username: data.username, id: data.id });
-      if (success){
-        socket.join(data.id);
       }
     });
 
@@ -385,19 +463,6 @@ io.sockets.on('connection', function(socket) {
           // setTimeout(function(){ console.log(i); }, i*100);
       }
       
-      console.log(result[2].toName);
-      console.log(result.length);
-/*
-      if (result.length == 0){
-        // add new user
-        console.log("You have no friend...!");
-        return false;
-      }else{
-        data.id = result[0].id;
-        console.log(data.id);
-        return true;
-      }
-*/
     }).then(function(success) {
       // console.log(data);
       console.log("Get: ", list); // Get returns a JSON representation of the user
@@ -581,15 +646,101 @@ io.sockets.on('connection', function(socket) {
 
 
   // test
-  socket.on('request history', function(names, cb) {
-    console.log(names.toName);
-    var channel = (names.toName == "client2") ? {username: "client2", history: [{send: true, time: '2:30', text:'hao123?'},{send: false, time: '2:31', text:'Fuck?'}]} : {username: "client3", history: [{send: true, time: '2:30', text:'gengengen?'},{send: true, time: '2:31', text:'hao333?'}]};
-    cb(channel);
+  socket.on('request history', function(data, cb) {
+    // console.log(names.toName);
+    console.log(data);
+
+    var list = [];
+    // sent msg
+    Chat_history.findAll({ where: { fromName: data.fromName, toName: data.toName }
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].toName, send: true, text: result[i].msg, time: result[i].createdAt});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      console.log("Get: ", list); // Get returns a JSON representation of the user
+      // emitLoginResult({success: success, username: data.name, id: data.id });
+    });
+
+    // received msg
+    Chat_history.findAll({ where: { toName: data.fromName, fromName: data.toName }
+    }).then(function(result) {
+      console.log("Result:");
+      
+      for (var j = 0; j < result.length; j += 1) {
+          let i = j;
+          list.push({ username: result[i].fromName, send: false, text: result[i].msg, time: result[i].createdAt});
+          console.log(result[i].toName);
+          // setTimeout(function(){ console.log(i); }, i*100);
+      }
+      
+      // console.log(result[2].toName);
+      console.log(result.length);
+
+    }).then(function(success) {
+      // console.log(data);
+      function custom_sort(a, b) {
+          return new Date(a.time).getTime() - new Date(b.time).getTime();
+      }
+      console.log("Get: ", list.sort(custom_sort)); // Get returns a JSON representation of the user
+      cb({username: data.toName, history: list.sort(custom_sort)})
+    });
+
+    // var channel = (names.toName == "client2") ? {username: "client2", history: [{send: true, time: '2:30', text:'hao123?'},{send: false, time: '2:31', text:'Fuck?'}]} : {username: "client3", history: [{send: true, time: '2:30', text:'gengengen?'},{send: true, time: '2:31', text:'hao333?'}]};
+    // cb(channel);
+
   });
 
-  socket.on('send message', function(msg) {
-    var message = {fromName: "client2", time: "3:50", text: "qqq dont fuck me"}
-    socket.emit('get message', message);
+  socket.on('send message', function(data) {
+    console.log(data);
+    //
+    User
+    .findAll({ where: { username: data.username }
+    }).then(function(result) {
+      if (result.length == 0){
+        // add new user
+        console.log("There is no such user!");
+        return false;
+      }else{
+        data.toID = result[0].id;
+        return true;
+      }
+    }).then(function(success) {
+      if(success){
+        // add into chatting DB
+        Chat_history
+        .build({ fromName: data.user, toName: data.username, msg: data.text })
+        .save()
+        .then(function(result) {
+          // send by socket.io
+          // sender
+          io.sockets.in(data.username).emit('get message', { text: data.text, fromName: data.user });
+          // receiver
+          // io.sockets.in(data.username).emit('new message', { text: data.text, fromName: data.fromName });
+          console.log("Successfully send msg from ", data.fromName, "to ", data.toName, "!");
+        }).catch(function(error) {
+          // Ooops, do some error-handling
+          if (error){
+            console.log(error);
+            console.log("Something wrong (send msg)")
+          }
+        });
+      }
+    });
+    //
+    var message = {fromName: "client2", time: "3:50", text: "qqq d fuck me"}
+    // socket.emit('get message', message);
+    // io.sockets.in(data.user).emit('get message', message);
   });
 });
 
