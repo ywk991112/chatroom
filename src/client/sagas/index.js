@@ -48,7 +48,6 @@ function* read(socket) {
   const channel = yield call(subscribe, socket);
   while (true) {
     let action = yield take(channel);
-    console.log("get message yoyyoyoyoyoyoy");
     yield put(action);
   }
 }
@@ -56,7 +55,6 @@ function* read(socket) {
 function* write(socket) {
   while (true) {
     let action = yield take('SEND_MESSAGE');
-    console.log('yoyoyo');
     socket.emit('send message', action.message);
   }
 }
